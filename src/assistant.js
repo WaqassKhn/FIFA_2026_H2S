@@ -30,6 +30,111 @@ const COPY = {
   }
 };
 
+const FALLBACK_LABELS = {
+  en: {
+    roles: { fan: "fan", volunteer: "volunteer", organizer: "organizer", "venue-staff": "venue staff" },
+    risks: { stable: "stable", elevated: "elevated", high: "high", critical: "critical" },
+    scenarios: {
+      baseline: "Live baseline",
+      "ingress-rush": "Ingress rush",
+      "transit-delay": "Transit delay",
+      "heat-advisory": "Heat advisory",
+      "accessibility-surge": "Accessibility surge",
+      "weather-hold": "Weather hold",
+      "waste-overflow": "Waste overflow"
+    },
+    drivers: {
+      "Gate queues": "Gate queues",
+      "Crowd density": "Crowd density",
+      "Transit load": "Transit load",
+      "Heat index": "Heat index",
+      "Accessible service demand": "Accessible service demand",
+      "Weather risk": "Weather risk",
+      "Waste load": "Waste load",
+      "Active incidents": "Active incidents"
+    },
+    summary: "For {role} at {venue}, risk is {risk} ({score}/100) during {scenario}. Main driver: {driver}.",
+    medicalAction: "Escalate to {medical}, assign a runner from {entry}, and keep the route clear until medical confirms handoff.",
+    firstAction: "Prioritize: {action}",
+    transitAction: "Coordinate with the transport desk at {hub}; publish the next departure option and hold overflow in signed lanes.",
+    reliefAction: "Use {path} as the relief path if {choke} exceeds safe density.",
+    sustainabilityAction: "Send recycling captains to concession exits and promote {items}.",
+    announcementAction: "Keep multilingual announcements short and repeat them through staff, screens, and mobile alerts.",
+    routeIntro: "{destination}, estimated {minutes} minutes.",
+    accessibleAlternate: "Keep {entry} visible as the accessible alternate.",
+    opsMetric: "Monitor queues every 5 minutes. Current gate queue estimate is {queue} minutes and transit load is {transit} percent.",
+    staffRedeployFallback: "Keep roaming support between {primary} and {secondary}."
+  },
+  es: {
+    roles: { fan: "aficion", volunteer: "voluntario", organizer: "organizador", "venue-staff": "personal de sede" },
+    risks: { stable: "estable", elevated: "elevado", high: "alto", critical: "critico" },
+    scenarios: {
+      baseline: "base en vivo",
+      "ingress-rush": "pico de entrada",
+      "transit-delay": "retraso de transporte",
+      "heat-advisory": "alerta de calor",
+      "accessibility-surge": "aumento accesible",
+      "weather-hold": "pausa por clima",
+      "waste-overflow": "residuos saturados"
+    },
+    drivers: {
+      "Gate queues": "filas de entrada",
+      "Crowd density": "densidad de publico",
+      "Transit load": "carga de transporte",
+      "Heat index": "indice de calor",
+      "Accessible service demand": "demanda de servicio accesible",
+      "Weather risk": "riesgo climatico",
+      "Waste load": "carga de residuos",
+      "Active incidents": "incidentes activos"
+    },
+    summary: "Para {role} en {venue}, el riesgo es {risk} ({score}/100) durante {scenario}. Principal factor: {driver}.",
+    medicalAction: "Escala a {medical}, asigna una persona de apoyo desde {entry} y manten la ruta despejada hasta entrega medica.",
+    firstAction: "Prioriza: {action}",
+    transitAction: "Coordina con transporte en {hub}; publica la siguiente salida y contiene el desborde en carriles senalizados.",
+    reliefAction: "Usa {path} como ruta de alivio si {choke} supera la densidad segura.",
+    sustainabilityAction: "Envia capitanes de reciclaje a concesiones y promueve {items}.",
+    announcementAction: "Manten los avisos multilingues cortos y repitelos por personal, pantallas y alertas moviles.",
+    routeIntro: "{destination}, estimado {minutes} minutos.",
+    accessibleAlternate: "Manten {entry} visible como alternativa accesible.",
+    opsMetric: "Vigila las filas cada 5 minutos. La espera estimada es {queue} minutos y la carga de transporte es {transit} por ciento.",
+    staffRedeployFallback: "Manten apoyo movil entre {primary} y {secondary}."
+  },
+  fr: {
+    roles: { fan: "supporter", volunteer: "benevole", organizer: "organisateur", "venue-staff": "personnel du site" },
+    risks: { stable: "stable", elevated: "eleve", high: "haut", critical: "critique" },
+    scenarios: {
+      baseline: "base en direct",
+      "ingress-rush": "afflux d'entree",
+      "transit-delay": "retard transport",
+      "heat-advisory": "alerte chaleur",
+      "accessibility-surge": "hausse accessible",
+      "weather-hold": "pause meteo",
+      "waste-overflow": "debordement dechets"
+    },
+    drivers: {
+      "Gate queues": "files aux portes",
+      "Crowd density": "densite de foule",
+      "Transit load": "charge transport",
+      "Heat index": "indice chaleur",
+      "Accessible service demand": "demande de service accessible",
+      "Weather risk": "risque meteo",
+      "Waste load": "charge dechets",
+      "Active incidents": "incidents actifs"
+    },
+    summary: "Pour {role} a {venue}, le risque est {risk} ({score}/100) pendant {scenario}. Facteur principal : {driver}.",
+    medicalAction: "Escaladez vers {medical}, envoyez un relais depuis {entry}, et gardez la route degagee jusqu'au relais medical.",
+    firstAction: "Priorite : {action}",
+    transitAction: "Coordonnez avec le poste transport a {hub}; publiez le prochain depart et gardez le debordement en voies signalees.",
+    reliefAction: "Utilisez {path} comme route de delestage si {choke} depasse la densite sure.",
+    sustainabilityAction: "Envoyez les capitaines recyclage aux concessions et mettez en avant {items}.",
+    announcementAction: "Gardez les annonces multilingues courtes et repetez-les via personnel, ecrans et alertes mobiles.",
+    routeIntro: "{destination}, environ {minutes} minutes.",
+    accessibleAlternate: "Gardez {entry} visible comme alternative accessible.",
+    opsMetric: "Surveillez les files toutes les 5 minutes. L'attente estimee est {queue} minutes et la charge transport est {transit} pour cent.",
+    staffRedeployFallback: "Gardez un soutien mobile entre {primary} et {secondary}."
+  }
+};
+
 export async function answerQuestion(payload = {}, options = {}) {
   const venue = findVenue(payload.venueId);
   const scenario = findScenario(payload.scenarioId || "baseline");
@@ -70,35 +175,40 @@ export async function answerQuestion(payload = {}, options = {}) {
 
 export function fallbackAnswer({ venue, scenario, telemetry, language, role, question, route, cards, mobilityNeed }) {
   const copy = COPY[language] || COPY.en;
+  const labels = FALLBACK_LABELS[language] || FALLBACK_LABELS.en;
   const intent = classifyIntent(question);
   const topDriver = telemetry.risk.drivers[0]?.label || "Crowd density";
-  const roleLabel = role.label.toLowerCase();
+  const roleLabel = labels.roles[role.id] || role.label.toLowerCase();
+  const scenarioLabel = labels.scenarios[scenario.id] || scenario.label;
+  const riskLabel = labels.risks[telemetry.risk.level] || telemetry.risk.level;
+  const driverLabel = labels.drivers[topDriver] || topDriver;
+  const firstAction = localizedAction(cards[0], venue, telemetry, language);
   const accessibilityLine = mobilityNeed !== "none"
     ? route.accessibilityNote
-    : `Keep ${venue.operations.accessibleEntry} visible as the accessible alternate.`;
+    : format(labels.accessibleAlternate, { entry: venue.operations.accessibleEntry });
 
   const actionLines = [
-    `${copy.plan}: For ${roleLabel} at ${venue.fifaName}, risk is ${telemetry.risk.level} (${telemetry.risk.score}/100) during ${scenario.label}. Main driver: ${topDriver}.`,
+    `${copy.plan}: ${format(labels.summary, { role: roleLabel, venue: venue.fifaName, risk: riskLabel, score: telemetry.risk.score, scenario: scenarioLabel, driver: driverLabel })}`,
     intent === "medical"
-      ? `Escalate to ${venue.operations.medical}, assign a runner from ${venue.operations.primaryIngress}, and keep the route clear until medical confirms handoff.`
-      : `Prioritize ${cards[0].action}`,
+      ? format(labels.medicalAction, { medical: venue.operations.medical, entry: venue.operations.primaryIngress })
+      : format(labels.firstAction, { action: firstAction }),
     intent === "transit"
-      ? `Coordinate with the transport desk at ${venue.operations.transitHub}; publish the next departure option and hold overflow in signed lanes.`
-      : `Use ${venue.operations.secondaryIngress} as the relief path if ${venue.operations.chokePoints[0]} exceeds safe density.`,
+      ? format(labels.transitAction, { hub: venue.operations.transitHub })
+      : format(labels.reliefAction, { path: venue.operations.secondaryIngress, choke: venue.operations.chokePoints[0] }),
     intent === "sustainability"
-      ? `Send recycling captains to concession exits and promote ${venue.sustainability.slice(0, 2).join(" plus ")}.`
-      : `Keep multilingual announcements short and repeat them through staff, screens, and mobile alerts.`
+      ? format(labels.sustainabilityAction, { items: venue.sustainability.slice(0, 2).join(" plus ") })
+      : labels.announcementAction
   ];
 
   const routeLines = [
-    `${copy.route}: ${route.destination}, estimated ${route.etaMinutes} minutes.`,
+    `${copy.route}: ${format(labels.routeIntro, { destination: route.destination, minutes: route.etaMinutes })}`,
     ...route.steps,
     accessibilityLine
   ];
 
   const opsLines = [
-    `${copy.operations}: ${telemetry.staffRedeploy}`,
-    `Monitor queues every 5 minutes. Current gate queue estimate is ${telemetry.queueMinutes} minutes and transit load is ${telemetry.transitLoad} percent.`,
+    `${copy.operations}: ${localizedStaffRedeploy(venue, telemetry, language)}`,
+    format(labels.opsMetric, { queue: telemetry.queueMinutes, transit: telemetry.transitLoad }),
     `${copy.safety}: ${copy.medical}`
   ];
 
@@ -111,6 +221,57 @@ export function fallbackAnswer({ venue, scenario, telemetry, language, role, que
     cards,
     sourceSummary: copy.source
   };
+}
+
+function localizedAction(card, venue, telemetry, language) {
+  const labels = FALLBACK_LABELS[language] || FALLBACK_LABELS.en;
+  if (card.title === "Safety trigger") {
+    return language === "es"
+      ? `difunde guia de agua y sombra, y ubica personal medico cerca de ${venue.operations.chokePoints[0]}`
+      : language === "fr"
+        ? `diffusez eau et ombre, puis placez du soutien medical pres de ${venue.operations.chokePoints[0]}`
+        : card.action;
+  }
+  if (card.title === "Crowd flow") {
+    return telemetry.queueMinutes > 30
+      ? format(language === "es" ? "abre carriles de alivio en {gate} y mueve revision movil hacia {secondary}" : language === "fr" ? "ouvrez des voies de delestage a {gate} et deplacez les controles mobiles vers {secondary}" : "{action}", { gate: venue.operations.accessibleEntry, secondary: venue.operations.secondaryIngress, action: card.action })
+      : format(language === "es" ? "manten activo {primary} y publica el mejor acceso cada 10 minutos" : language === "fr" ? "gardez {primary} actif et publiez la meilleure entree toutes les 10 minutes" : "{action}", { primary: venue.operations.primaryIngress, action: card.action });
+  }
+  if (card.title === "Accessible service") {
+    return telemetry.accessibleDemand > 60
+      ? format(language === "es" ? "mueve dos voluntarios a {place} y avisa al equipo de elevadores" : language === "fr" ? "redeployez deux benevoles a {place} et pre-alertez les ascenseurs" : "{action}", { place: venue.operations.accessibleEntry, action: card.action })
+      : format(language === "es" ? "manten visible el carril prioritario en {place} y confirma intervalos de shuttle" : language === "fr" ? "gardez la voie prioritaire visible a {place} et confirmez les navettes" : "{action}", { place: venue.operations.accessibleEntry, action: card.action });
+  }
+  if (card.title === "Transit") {
+    return telemetry.transitLoad > 70
+      ? format(labels.transitAction, { hub: venue.operations.transitHub })
+      : card.action;
+  }
+  if (card.title === "Sustainability") {
+    return language === "es"
+      ? "rota capitanes de reciclaje por concesiones y puntos de recarga"
+      : language === "fr"
+        ? "faites tourner les capitaines recyclage aux concessions et points d'eau"
+        : card.action;
+  }
+  return card.action;
+}
+
+function localizedStaffRedeploy(venue, telemetry, language) {
+  const labels = FALLBACK_LABELS[language] || FALLBACK_LABELS.en;
+  if (telemetry.accessibleDemand > 64) {
+    if (language === "es") return `mueve voluntarios de accesibilidad a ${venue.operations.accessibleEntry}.`;
+    if (language === "fr") return `deplacez les benevoles accessibilite vers ${venue.operations.accessibleEntry}.`;
+  }
+  if (telemetry.transitLoad > 72) {
+    if (language === "es") return `mueve personal de orientacion a ${venue.operations.transitHub}.`;
+    if (language === "fr") return `deplacez l'equipe orientation vers ${venue.operations.transitHub}.`;
+  }
+  if (telemetry.crowdDensity > 70) {
+    if (language === "es") return `mueve gestores de publico a ${venue.operations.chokePoints[0]}.`;
+    if (language === "fr") return `deplacez les stewards vers ${venue.operations.chokePoints[0]}.`;
+  }
+  return format(labels.staffRedeployFallback, { primary: venue.operations.primaryIngress, secondary: venue.operations.secondaryIngress });
 }
 
 function buildContext({ venue, scenario, telemetry, language, role, question, route, cards, mobilityNeed }) {
@@ -233,6 +394,10 @@ function languageName(language) {
   if (language === "es") return "Spanish";
   if (language === "fr") return "French";
   return "English";
+}
+
+function format(template, values = {}) {
+  return Object.entries(values).reduce((text, [key, value]) => text.replaceAll(`{${key}}`, value), template);
 }
 
 function safeError(error) {

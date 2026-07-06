@@ -10,55 +10,44 @@
     <div class="app-shell">
       <aside class="control-rail" aria-label="Operations controls">
         <div class="brand-block">
-          <p class="eyebrow">FIFA World Cup 2026</p>
-          <h1>Matchday Stadium Copilot</h1>
+          <p class="eyebrow" data-i18n="brandEyebrow">FIFA World Cup 2026</p>
+          <h1 data-i18n="appTitle">Matchday Stadium Copilot</h1>
+          <p class="brand-copy" data-i18n="brandCopy">Live command support for fans, staff, volunteers, and organizers.</p>
         </div>
 
-        <label>
-          Venue
-          <select id="venueSelect"></select>
-        </label>
+        <div class="filter-stack">
+          <label>
+            <span data-i18n="venueLabel">Venue</span>
+            <select id="venueSelect"></select>
+          </label>
 
-        <label>
-          Scenario
-          <select id="scenarioSelect"></select>
-        </label>
+          <label>
+            <span data-i18n="scenarioLabel">Scenario</span>
+            <select id="scenarioSelect"></select>
+          </label>
 
-        <label>
-          Persona
-          <select id="roleSelect"></select>
-        </label>
+          <label>
+            <span data-i18n="roleLabel">Persona</span>
+            <select id="roleSelect"></select>
+          </label>
 
-        <label>
-          Language
-          <select id="languageSelect"></select>
-        </label>
+          <label>
+            <span data-i18n="languageLabel">Language</span>
+            <select id="languageSelect"></select>
+          </label>
 
-        <label>
-          Destination
-          <select id="destinationSelect">
-            <option value="gate">Best entry gate</option>
-            <option value="transit">Transit hub</option>
-            <option value="medical">Medical support</option>
-            <option value="accessibility">Accessible services</option>
-            <option value="water">Water and shade</option>
-            <option value="sustainability">Recycling and refill</option>
-          </select>
-        </label>
+          <label>
+            <span data-i18n="destinationLabel">Destination</span>
+            <select id="destinationSelect"></select>
+          </label>
 
-        <label>
-          Access need
-          <select id="mobilitySelect">
-            <option value="none">None</option>
-            <option value="mobility">Mobility support</option>
-            <option value="wheelchair">Wheelchair route</option>
-            <option value="visual">Visual guidance</option>
-            <option value="hearing">Hearing support</option>
-            <option value="sensory">Sensory support</option>
-          </select>
-        </label>
+          <label>
+            <span data-i18n="mobilityLabel">Access need</span>
+            <select id="mobilitySelect"></select>
+          </label>
+        </div>
 
-        <button class="primary-button" id="refreshButton" type="button">Refresh telemetry</button>
+        <button class="primary-button" id="refreshButton" type="button" data-i18n="refreshButton">Refresh telemetry</button>
         <p class="source-note" id="sourceNote"></p>
       </aside>
 
@@ -71,80 +60,108 @@
           <div class="mode-pill" id="assistantMode">Local fallback ready</div>
         </header>
 
-        <section class="dashboard-grid" aria-label="Operations dashboard">
-          <section class="risk-panel tool-panel" aria-labelledby="riskTitle">
+        <section class="context-strip" id="contextStrip" aria-label="Selected matchday context"></section>
+
+        <section class="focus-grid" aria-label="Match focus">
+          <section class="match-focus-panel tool-panel content-swap" aria-labelledby="matchFocusTitle" id="matchFocusPanel">
             <div class="panel-head">
               <div>
-                <p class="eyebrow">Live risk</p>
-                <h3 id="riskTitle">Stadium status</h3>
+                <p class="eyebrow" data-i18n="matchFocusEyebrow">Match focus</p>
+                <h3 id="matchFocusTitle" data-i18n="matchFocusTitle">Live match simulation</h3>
+              </div>
+              <span class="phase-chip" id="matchStatus">--</span>
+            </div>
+            <div id="matchFocus"></div>
+          </section>
+
+          <section class="concern-panel tool-panel content-swap" aria-labelledby="concernTitle" id="concernPanel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow" data-i18n="concernEyebrow">Primary concern</p>
+                <h3 id="concernTitle">Operational focus</h3>
               </div>
               <span class="risk-badge" id="riskLevel">--</span>
             </div>
+            <div class="risk-score"><span id="riskScore">0</span><span>/100</span></div>
             <div class="risk-meter" aria-hidden="true">
               <div id="riskFill"></div>
             </div>
-            <div class="risk-score"><span id="riskScore">0</span><span>/100</span></div>
+            <div class="concern-summary" id="concernSummary"></div>
             <div class="driver-list" id="driverList"></div>
           </section>
+        </section>
 
-          <section class="map-panel tool-panel" aria-labelledby="mapTitle">
+        <section class="details-grid" aria-label="Operations details">
+          <section class="tool-panel telemetry-panel content-swap" aria-labelledby="telemetryTitle">
             <div class="panel-head">
               <div>
-                <p class="eyebrow">Host footprint</p>
-                <h3 id="mapTitle">Venue network</h3>
+                <p class="eyebrow" data-i18n="signalsEyebrow">Signals</p>
+                <h3 id="telemetryTitle" data-i18n="telemetryTitle">Matchday telemetry</h3>
               </div>
               <span id="phaseText" class="phase-chip">--</span>
-            </div>
-            <div class="venue-map" id="venueMap" aria-label="Map of 2026 host venues"></div>
-          </section>
-
-          <section class="tool-panel telemetry-panel" aria-labelledby="telemetryTitle">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">Signals</p>
-                <h3 id="telemetryTitle">Matchday telemetry</h3>
-              </div>
             </div>
             <div class="metric-grid" id="metricGrid"></div>
           </section>
 
-          <section class="tool-panel decisions-panel" aria-labelledby="decisionsTitle">
+          <section class="tool-panel decisions-panel content-swap" aria-labelledby="decisionsTitle">
             <div class="panel-head">
               <div>
-                <p class="eyebrow">Decision support</p>
-                <h3 id="decisionsTitle">Recommended actions</h3>
+                <p class="eyebrow" data-i18n="decisionEyebrow">Decision support</p>
+                <h3 id="decisionsTitle" data-i18n="decisionTitle">Recommended actions</h3>
               </div>
             </div>
             <div class="decision-list" id="decisionList"></div>
           </section>
-        </section>
 
-        <section class="assistant-section">
-          <section class="tool-panel assistant-panel" aria-labelledby="assistantTitle">
+          <section class="tool-panel route-panel content-swap" aria-labelledby="routeTitle">
             <div class="panel-head">
               <div>
-                <p class="eyebrow">GenAI assistant</p>
-                <h3 id="assistantTitle">Ask for a grounded plan</h3>
-              </div>
-            </div>
-            <div class="quick-prompts" id="quickPrompts"></div>
-            <label class="question-label" for="questionInput">Question</label>
-            <textarea id="questionInput" rows="4">A wheelchair user and family need the safest route to their section while gate queues are rising. What should staff do?</textarea>
-            <div class="assistant-actions">
-              <button class="primary-button" id="askButton" type="button">Generate plan</button>
-              <button class="secondary-button" id="clearButton" type="button">Clear</button>
-            </div>
-            <div class="answer-box" id="answerBox" aria-live="polite"></div>
-          </section>
-
-          <section class="tool-panel route-panel" aria-labelledby="routeTitle">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">Navigation</p>
-                <h3 id="routeTitle">Route plan</h3>
+                <p class="eyebrow" data-i18n="navigationEyebrow">Navigation</p>
+                <h3 id="routeTitle" data-i18n="routeTitle">Route plan</h3>
               </div>
             </div>
             <div id="routePlan"></div>
+          </section>
+
+          <section class="map-panel tool-panel content-swap" aria-labelledby="mapTitle">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow" data-i18n="mapEyebrow">Host footprint</p>
+                <h3 id="mapTitle" data-i18n="mapTitle">Venue network</h3>
+              </div>
+            </div>
+            <div class="venue-map" id="venueMap" aria-label="Map of 2026 host venues"></div>
+          </section>
+
+          <section class="tool-panel history-panel content-swap" aria-labelledby="historyTitle">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow" data-i18n="historyEyebrow">Match history</p>
+                <h3 id="historyTitle" data-i18n="historyTitle">Recent tournament flow</h3>
+              </div>
+            </div>
+            <div id="matchHistory"></div>
+          </section>
+        </section>
+
+        <section class="assistant-section">
+          <section class="tool-panel assistant-panel content-swap" aria-labelledby="assistantTitle">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow" data-i18n="assistantEyebrow">GenAI assistant</p>
+                <h3 id="assistantTitle" data-i18n="assistantTitle">Ask for a grounded plan</h3>
+              </div>
+            </div>
+            <div class="quick-prompts" id="quickPrompts"></div>
+            <label class="question-label" for="questionInput">
+              <span data-i18n="questionLabel">Question</span>
+            </label>
+            <textarea id="questionInput" rows="4"></textarea>
+            <div class="assistant-actions">
+              <button class="primary-button" id="askButton" type="button" data-i18n="askButton">Generate plan</button>
+              <button class="secondary-button" id="clearButton" type="button" data-i18n="clearButton">Clear</button>
+            </div>
+            <div class="answer-box" id="answerBox" aria-live="polite"></div>
           </section>
         </section>
       </main>

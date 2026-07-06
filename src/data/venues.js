@@ -81,6 +81,483 @@ export const SCENARIOS = [
   }
 ];
 
+const FLAGS = {
+  argentina: "\uD83C\uDDE6\uD83C\uDDF7",
+  brazil: "\uD83C\uDDE7\uD83C\uDDF7",
+  canada: "\uD83C\uDDE8\uD83C\uDDE6",
+  england: "\uD83C\uDDEC\uD83C\uDDE7",
+  france: "\uD83C\uDDEB\uD83C\uDDF7",
+  germany: "\uD83C\uDDE9\uD83C\uDDEA",
+  japan: "\uD83C\uDDEF\uD83C\uDDF5",
+  mexico: "\uD83C\uDDF2\uD83C\uDDFD",
+  morocco: "\uD83C\uDDF2\uD83C\uDDE6",
+  netherlands: "\uD83C\uDDF3\uD83C\uDDF1",
+  portugal: "\uD83C\uDDF5\uD83C\uDDF9",
+  senegal: "\uD83C\uDDF8\uD83C\uDDF3",
+  southAfrica: "\uD83C\uDDFF\uD83C\uDDE6",
+  spain: "\uD83C\uDDEA\uD83C\uDDF8",
+  usa: "\uD83C\uDDFA\uD83C\uDDF8",
+  uruguay: "\uD83C\uDDFA\uD83C\uDDFE"
+};
+
+const TEAM_PROFILES = {
+  Argentina: {
+    code: "ARG",
+    flag: FLAGS.argentina,
+    color: "#6cb4e4",
+    formation: "4-3-3",
+    players: [
+      { name: "Julian Alvarez", role: "Forward", note: "press trigger and near-post runner" },
+      { name: "Enzo Fernandez", role: "Midfield", note: "tempo setter under pressure" },
+      { name: "Emiliano Martinez", role: "Goalkeeper", note: "organizes rest-defense line" }
+    ]
+  },
+  Brazil: {
+    code: "BRA",
+    flag: FLAGS.brazil,
+    color: "#f6c915",
+    formation: "4-2-3-1",
+    players: [
+      { name: "Vinicius Junior", role: "Forward", note: "left-side transition threat" },
+      { name: "Bruno Guimaraes", role: "Midfield", note: "counter-press anchor" },
+      { name: "Alisson", role: "Goalkeeper", note: "starts fast wide releases" }
+    ]
+  },
+  Canada: {
+    code: "CAN",
+    flag: FLAGS.canada,
+    color: "#d71920",
+    formation: "3-4-2-1",
+    players: [
+      { name: "Alphonso Davies", role: "Wingback", note: "wide outlet and recovery speed" },
+      { name: "Jonathan David", role: "Forward", note: "box movement and first press" },
+      { name: "Stephen Eustaquio", role: "Midfield", note: "set-piece delivery" }
+    ]
+  },
+  England: {
+    code: "ENG",
+    flag: FLAGS.england,
+    color: "#d91f2e",
+    formation: "4-2-3-1",
+    players: [
+      { name: "Harry Kane", role: "Forward", note: "hold-up play and penalty threat" },
+      { name: "Jude Bellingham", role: "Midfield", note: "late box arrival" },
+      { name: "Bukayo Saka", role: "Forward", note: "right-side chance creation" }
+    ]
+  },
+  France: {
+    code: "FRA",
+    flag: FLAGS.france,
+    color: "#1f4aa8",
+    formation: "4-3-3",
+    players: [
+      { name: "Kylian Mbappe", role: "Forward", note: "space behind the back line" },
+      { name: "Aurelien Tchouameni", role: "Midfield", note: "screening and switches" },
+      { name: "Mike Maignan", role: "Goalkeeper", note: "high starting position" }
+    ]
+  },
+  Germany: {
+    code: "GER",
+    flag: FLAGS.germany,
+    color: "#242424",
+    formation: "4-2-3-1",
+    players: [
+      { name: "Jamal Musiala", role: "Midfield", note: "between-lines dribbler" },
+      { name: "Florian Wirtz", role: "Midfield", note: "final-third connector" },
+      { name: "Antonio Rudiger", role: "Defender", note: "duel leader" }
+    ]
+  },
+  Japan: {
+    code: "JPN",
+    flag: FLAGS.japan,
+    color: "#1d4ed8",
+    formation: "4-3-3",
+    players: [
+      { name: "Takefusa Kubo", role: "Forward", note: "right half-space creator" },
+      { name: "Kaoru Mitoma", role: "Forward", note: "one-v-one wing threat" },
+      { name: "Wataru Endo", role: "Midfield", note: "ball-winning captain" }
+    ]
+  },
+  Mexico: {
+    code: "MEX",
+    flag: FLAGS.mexico,
+    color: "#0f8f4f",
+    formation: "4-3-3",
+    players: [
+      { name: "Santiago Gimenez", role: "Forward", note: "box finisher" },
+      { name: "Edson Alvarez", role: "Midfield", note: "defensive balance" },
+      { name: "Luis Chavez", role: "Midfield", note: "long-range set pieces" }
+    ]
+  },
+  Morocco: {
+    code: "MAR",
+    flag: FLAGS.morocco,
+    color: "#c1272d",
+    formation: "4-1-4-1",
+    players: [
+      { name: "Achraf Hakimi", role: "Defender", note: "right-side overlap" },
+      { name: "Sofyan Amrabat", role: "Midfield", note: "central ball recovery" },
+      { name: "Yassine Bounou", role: "Goalkeeper", note: "shot-stopping leader" }
+    ]
+  },
+  Netherlands: {
+    code: "NED",
+    flag: FLAGS.netherlands,
+    color: "#f97316",
+    formation: "3-4-1-2",
+    players: [
+      { name: "Cody Gakpo", role: "Forward", note: "inside-left finisher" },
+      { name: "Frenkie de Jong", role: "Midfield", note: "press escape route" },
+      { name: "Virgil van Dijk", role: "Defender", note: "aerial control" }
+    ]
+  },
+  Portugal: {
+    code: "POR",
+    flag: FLAGS.portugal,
+    color: "#b91c1c",
+    formation: "4-3-3",
+    players: [
+      { name: "Bruno Fernandes", role: "Midfield", note: "chance creation and pressing" },
+      { name: "Rafael Leao", role: "Forward", note: "left-channel acceleration" },
+      { name: "Ruben Dias", role: "Defender", note: "box protection" }
+    ]
+  },
+  Senegal: {
+    code: "SEN",
+    flag: FLAGS.senegal,
+    color: "#16a34a",
+    formation: "4-2-3-1",
+    players: [
+      { name: "Sadio Mane", role: "Forward", note: "diagonal runs" },
+      { name: "Pape Matar Sarr", role: "Midfield", note: "progressive carries" },
+      { name: "Kalidou Koulibaly", role: "Defender", note: "back-line organizer" }
+    ]
+  },
+  "South Africa": {
+    code: "RSA",
+    flag: FLAGS.southAfrica,
+    color: "#007a4d",
+    formation: "4-2-3-1",
+    players: [
+      { name: "Percy Tau", role: "Forward", note: "between-lines runner" },
+      { name: "Teboho Mokoena", role: "Midfield", note: "long-range passing and shots" },
+      { name: "Ronwen Williams", role: "Goalkeeper", note: "penalty-box command" }
+    ]
+  },
+  Spain: {
+    code: "ESP",
+    flag: FLAGS.spain,
+    color: "#e11d48",
+    formation: "4-3-3",
+    players: [
+      { name: "Pedri", role: "Midfield", note: "central combination play" },
+      { name: "Lamine Yamal", role: "Forward", note: "wide isolation threat" },
+      { name: "Rodri", role: "Midfield", note: "control and second balls" }
+    ]
+  },
+  USA: {
+    code: "USA",
+    flag: FLAGS.usa,
+    color: "#244c9c",
+    formation: "4-3-3",
+    players: [
+      { name: "Christian Pulisic", role: "Forward", note: "left-side creator" },
+      { name: "Tyler Adams", role: "Midfield", note: "counter-press captain" },
+      { name: "Antonee Robinson", role: "Defender", note: "overlap and recovery pace" }
+    ]
+  },
+  Uruguay: {
+    code: "URU",
+    flag: FLAGS.uruguay,
+    color: "#60a5fa",
+    formation: "4-3-3",
+    players: [
+      { name: "Federico Valverde", role: "Midfield", note: "vertical carries" },
+      { name: "Darwin Nunez", role: "Forward", note: "runs behind center backs" },
+      { name: "Ronald Araujo", role: "Defender", note: "recovery defending" }
+    ]
+  }
+};
+
+function team(name, score = null) {
+  return { name, score, ...TEAM_PROFILES[name] };
+}
+
+export const MATCH_FIXTURES = [
+  {
+    id: "atlanta-live-demo",
+    venueId: "atlanta",
+    status: "live",
+    stage: "Group stage",
+    kickoffLocal: "19:00",
+    minute: 27,
+    attendance: 71140,
+    home: team("USA", 1),
+    away: team("Mexico", 1),
+    timeline: [
+      { minute: 8, type: "goal", label: "USA fast break finishes from the left channel" },
+      { minute: 19, type: "goal", label: "Mexico equalizes after a recycled corner" },
+      { minute: 27, type: "ops", label: "North Plaza density rising during concession wave" }
+    ],
+    operationsNotes: ["activate bilingual crowd prompts", "split North Plaza and transit-bound flows", "hold accessible elevator marshals in place"]
+  },
+  {
+    id: "boston-history",
+    venueId: "boston",
+    status: "completed",
+    stage: "Group stage",
+    kickoffLocal: "15:00",
+    minute: 90,
+    attendance: 62110,
+    home: team("England", 2),
+    away: team("Senegal", 0),
+    timeline: [
+      { minute: 31, type: "goal", label: "England scores from a central overload" },
+      { minute: 67, type: "goal", label: "England doubles the lead on a right-side cutback" },
+      { minute: 90, type: "ops", label: "Rail egress released in three waves" }
+    ],
+    operationsNotes: ["pre-stage coach buses", "hold retail walk clear", "publish rail departure windows"]
+  },
+  {
+    id: "dallas-upcoming",
+    venueId: "dallas",
+    status: "upcoming",
+    stage: "Round of 32",
+    kickoffLocal: "20:00",
+    minute: 0,
+    attendance: 0,
+    home: team("Brazil"),
+    away: team("Germany"),
+    timeline: [
+      { minute: -90, type: "ops", label: "Shuttle and parking tram waves begin" },
+      { minute: -45, type: "ops", label: "Largest plaza moves to metered entry" },
+      { minute: 0, type: "ops", label: "Kickoff operations switch to concourse monitoring" }
+    ],
+    operationsNotes: ["meter AT&T Way plaza", "keep ride-share curb separate", "stage hydration runners"]
+  },
+  {
+    id: "guadalajara-history",
+    venueId: "guadalajara",
+    status: "completed",
+    stage: "Group stage",
+    kickoffLocal: "18:00",
+    minute: 90,
+    attendance: 44120,
+    home: team("Mexico", 2),
+    away: team("Japan", 2),
+    timeline: [
+      { minute: 12, type: "goal", label: "Mexico opens scoring from a set piece" },
+      { minute: 54, type: "goal", label: "Japan levels after sustained pressure" },
+      { minute: 88, type: "goal", label: "Late equalizer changes egress timing" }
+    ],
+    operationsNotes: ["keep Spanish updates first", "protect bus lane", "open west security fan-out"]
+  },
+  {
+    id: "houston-live-demo",
+    venueId: "houston",
+    status: "live",
+    stage: "Group stage",
+    kickoffLocal: "17:30",
+    minute: 63,
+    attendance: 69040,
+    home: team("France", 2),
+    away: team("Canada", 1),
+    timeline: [
+      { minute: 14, type: "goal", label: "France scores in transition" },
+      { minute: 41, type: "goal", label: "Canada answers from a wide overload" },
+      { minute: 63, type: "ops", label: "Heat demand moves water refill carts to rail approach" }
+    ],
+    operationsNotes: ["push hydration alerts", "separate rail entries", "stage medical spotters"]
+  },
+  {
+    id: "kansas-city-upcoming",
+    venueId: "kansas-city",
+    status: "upcoming",
+    stage: "Group stage",
+    kickoffLocal: "16:00",
+    minute: 0,
+    attendance: 0,
+    home: team("Netherlands"),
+    away: team("Morocco"),
+    timeline: [
+      { minute: -120, type: "ops", label: "Tailgate waste teams start first loop" },
+      { minute: -60, type: "ops", label: "Founder's Plaza opens overflow lanes" },
+      { minute: 0, type: "ops", label: "Kickoff handoff to concourse patrols" }
+    ],
+    operationsNotes: ["control tailgate surge", "pre-stage parking exits", "send recycling bag teams"]
+  },
+  {
+    id: "los-angeles-live-demo",
+    venueId: "los-angeles",
+    status: "live",
+    stage: "Quarterfinal",
+    kickoffLocal: "18:00",
+    minute: 52,
+    attendance: 69880,
+    home: team("Brazil", 1),
+    away: team("Portugal", 0),
+    timeline: [
+      { minute: 21, type: "goal", label: "Brazil breaks through after a wing switch" },
+      { minute: 45, type: "ops", label: "Halftime concession pressure peaks" },
+      { minute: 52, type: "ops", label: "Shuttle transfer queue needs second lane" }
+    ],
+    operationsNotes: ["protect shuttle transfers", "separate ride-share curb", "open refill stations"]
+  },
+  {
+    id: "mexico-city-history",
+    venueId: "mexico-city",
+    status: "completed",
+    stage: "Opening match",
+    kickoffLocal: "18:00",
+    minute: 90,
+    attendance: 81020,
+    home: team("Mexico", 1),
+    away: team("South Africa", 1),
+    timeline: [
+      { minute: 55, type: "goal", label: "Mexico scores after sustained pressure" },
+      { minute: 79, type: "goal", label: "Late equalizer changes crowd mood" },
+      { minute: 90, type: "ops", label: "Light rail bridge held for metered egress" }
+    ],
+    operationsNotes: ["repeat Spanish and English together", "meter light rail bridge", "protect Gate 6 priority lane"]
+  },
+  {
+    id: "miami-live-demo",
+    venueId: "miami",
+    status: "live",
+    stage: "Round of 16",
+    kickoffLocal: "21:00",
+    minute: 74,
+    attendance: 64100,
+    home: team("Argentina", 2),
+    away: team("France", 2),
+    timeline: [
+      { minute: 18, type: "goal", label: "Argentina scores from a central press win" },
+      { minute: 58, type: "goal", label: "France equalizes in transition" },
+      { minute: 74, type: "ops", label: "Storm window pushes fans toward covered concourse" }
+    ],
+    operationsNotes: ["monitor storm window", "stage shuttle boarding", "push water and shade guidance"]
+  },
+  {
+    id: "monterrey-history",
+    venueId: "monterrey",
+    status: "completed",
+    stage: "Group stage",
+    kickoffLocal: "19:00",
+    minute: 90,
+    attendance: 51220,
+    home: team("Morocco", 1),
+    away: team("Portugal", 1),
+    timeline: [
+      { minute: 36, type: "goal", label: "Portugal opens from a second ball" },
+      { minute: 71, type: "goal", label: "Morocco equalizes after a counter" },
+      { minute: 90, type: "ops", label: "Shaded park paths used for egress relief" }
+    ],
+    operationsNotes: ["route through shaded park paths", "protect accessible shuttle timing", "hold ride-share curb"]
+  },
+  {
+    id: "new-york-final-demo",
+    venueId: "new-york-new-jersey",
+    status: "upcoming",
+    stage: "Final rehearsal",
+    kickoffLocal: "18:00",
+    minute: 0,
+    attendance: 0,
+    home: team("Spain"),
+    away: team("Argentina"),
+    timeline: [
+      { minute: -180, type: "ops", label: "Rail and coach staging opens" },
+      { minute: -75, type: "ops", label: "MetLife Gate turnstiles move to high-throughput mode" },
+      { minute: 0, type: "ops", label: "Command center changes to in-match monitoring" }
+    ],
+    operationsNotes: ["protect rail bridge", "hold bus loading lanes", "pre-stage final-day egress capacity"]
+  },
+  {
+    id: "philadelphia-history",
+    venueId: "philadelphia",
+    status: "completed",
+    stage: "Group stage",
+    kickoffLocal: "20:00",
+    minute: 90,
+    attendance: 66010,
+    home: team("USA", 2),
+    away: team("Japan", 1),
+    timeline: [
+      { minute: 22, type: "goal", label: "USA scores from a right-side overload" },
+      { minute: 49, type: "goal", label: "Japan levels from a high regain" },
+      { minute: 83, type: "goal", label: "Late winner extends egress dwell time" }
+    ],
+    operationsNotes: ["hold subway crowd in waves", "keep sports complex crossings open", "open LifeBrand accessible lane"]
+  },
+  {
+    id: "san-francisco-upcoming",
+    venueId: "san-francisco-bay-area",
+    status: "upcoming",
+    stage: "Group stage",
+    kickoffLocal: "17:00",
+    minute: 0,
+    attendance: 0,
+    home: team("Germany"),
+    away: team("Uruguay"),
+    timeline: [
+      { minute: -120, type: "ops", label: "Bike valet and light rail lanes open" },
+      { minute: -40, type: "ops", label: "Sun-exposed queues receive hydration patrol" },
+      { minute: 0, type: "ops", label: "Kickoff shifts focus to concourse and medical" }
+    ],
+    operationsNotes: ["separate light rail and bike paths", "manage sun-exposed queues", "stage refill carts"]
+  },
+  {
+    id: "seattle-live-demo",
+    venueId: "seattle",
+    status: "live",
+    stage: "Group stage",
+    kickoffLocal: "19:30",
+    minute: 39,
+    attendance: 67110,
+    home: team("England", 1),
+    away: team("Netherlands", 0),
+    timeline: [
+      { minute: 11, type: "goal", label: "England scores from a set piece" },
+      { minute: 32, type: "ops", label: "Ferry connector demand rises before halftime" },
+      { minute: 39, type: "ops", label: "Historic district walkways need extra marshals" }
+    ],
+    operationsNotes: ["balance rail and ferry flows", "protect narrow walks", "hold North Gate accessible lane"]
+  },
+  {
+    id: "toronto-history",
+    venueId: "toronto",
+    status: "completed",
+    stage: "Group stage",
+    kickoffLocal: "18:30",
+    minute: 90,
+    attendance: 43800,
+    home: team("Canada", 1),
+    away: team("France", 3),
+    timeline: [
+      { minute: 16, type: "goal", label: "Canada starts fast from a wingback run" },
+      { minute: 44, type: "goal", label: "France equalizes before halftime" },
+      { minute: 90, type: "ops", label: "Bilingual egress messaging continues for GO station" }
+    ],
+    operationsNotes: ["coordinate rail and streetcar arrivals", "support English and French updates", "keep Gate 3 accessible lane clear"]
+  },
+  {
+    id: "vancouver-upcoming",
+    venueId: "vancouver",
+    status: "upcoming",
+    stage: "Group stage",
+    kickoffLocal: "17:30",
+    minute: 0,
+    attendance: 0,
+    home: team("Canada"),
+    away: team("Spain"),
+    timeline: [
+      { minute: -100, type: "ops", label: "SkyTrain-first messages begin" },
+      { minute: -35, type: "ops", label: "Downtown closure routing goes live" },
+      { minute: 0, type: "ops", label: "In-match monitoring starts with concourse patrols" }
+    ],
+    operationsNotes: ["keep SkyTrain exits clear", "route around downtown closures", "open bike valet overflow"]
+  }
+];
+
 export const VENUES = [
   {
     id: "atlanta",

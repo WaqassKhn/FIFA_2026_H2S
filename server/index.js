@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
 import { extname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { DATA_LAST_REVIEWED, DATA_SOURCES, LANGUAGES, ROLES, SCENARIOS, VENUES } from "../src/data/venues.js";
+import { DATA_LAST_REVIEWED, DATA_SOURCES, LANGUAGES, MATCH_FIXTURES, ROLES, SCENARIOS, VENUES } from "../src/data/venues.js";
 import { answerQuestion } from "../src/assistant.js";
 import { buildDecisionCards, buildTelemetry, buildVenueSummary, findVenue, getRoutePlan } from "../src/opsEngine.js";
 
@@ -62,6 +62,7 @@ async function handleApi(request, response, url) {
       languages: LANGUAGES,
       roles: ROLES,
       scenarios: SCENARIOS,
+      matches: MATCH_FIXTURES,
       venues: VENUES.map(buildVenueSummary)
     });
     return;
