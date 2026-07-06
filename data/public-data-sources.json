@@ -1,0 +1,35 @@
+{
+  "lastReviewed": "2026-07-06",
+  "notes": [
+    "The app bundles a small seed dataset to keep the repository under the 10 MB hackathon limit.",
+    "Venue capacities, names, and coordinates are approximate public planning data and should be replaced with official venue feeds for production deployment.",
+    "Kaggle-style CSV or public mobility datasets can be joined through the venue id field without changing the app contract."
+  ],
+  "sources": [
+    {
+      "name": "FIFA World Cup 2026 official tournament hub",
+      "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026",
+      "usedFor": "Host city and tournament context"
+    },
+    {
+      "name": "FIFA host cities media release",
+      "url": "https://inside.fifa.com/media-releases/fifa-world-cup-2026-host-cities",
+      "usedFor": "Host city list cross-check"
+    },
+    {
+      "name": "Wikidata",
+      "url": "https://www.wikidata.org/",
+      "usedFor": "Approximate venue coordinates and public metadata"
+    },
+    {
+      "name": "OpenStreetMap",
+      "url": "https://www.openstreetmap.org/",
+      "usedFor": "Transit and pedestrian planning assumptions"
+    },
+    {
+      "name": "Kaggle public datasets catalog",
+      "url": "https://www.kaggle.com/datasets",
+      "usedFor": "Optional source for future CSV joins such as weather, mobility, or venue operations data"
+    }
+  ]
+}

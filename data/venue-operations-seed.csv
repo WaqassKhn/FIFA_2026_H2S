@@ -1,0 +1,17 @@
+venue_id,city,country,planning_focus,primary_transit,accessibility_focus,sustainability_focus
+atlanta,Atlanta,United States,Separate rail and ride-share flows,MARTA rail,step-free rail transfer,reusable cup return
+boston,Boston,United States,Stage rail queues before egress,commuter rail,accessible parking tram,regional shuttle priority
+dallas,Dallas,United States,Balance shuttle and ride-share arrivals,event shuttle,accessible shuttle loop,high-volume recycling
+guadalajara,Guadalajara,Mexico,Protect bus approaches from ride-share spillover,Mi Macro bus,accessible shuttle,solar operations story
+houston,Houston,United States,Monitor heat stress and rail entries,METRORail,rail step-free path,rail-first prompts
+kansas-city,Kansas City,United States,Control tailgate-to-turnstile surges,event bus,ADA parking loop,tailgate waste zones
+los-angeles,Los Angeles,United States,Protect shuttle transfer times,event shuttle,ADA shuttle,shuttle-first campaign
+mexico-city,Mexico City,Mexico,Keep light rail exits moving,Tren Ligero,priority access lanes,rail-first announcements
+miami,Miami,United States,Monitor heat and storm windows,event shuttle,accessible tram,shade messaging
+monterrey,Monterrey,Mexico,Route fans through shaded park paths,Metrorrey connector,priority gate,park-and-ride prompts
+new-york-new-jersey,New York New Jersey,United States,Keep rail station queue managed,NJ Transit rail,step-free shuttle path,rail-first messaging
+philadelphia,Philadelphia,United States,Hold subway crowd in waves after full-time,SEPTA subway,step-free subway connector,subway-first prompt
+san-francisco-bay-area,San Francisco Bay Area,United States,Separate light rail and bike valet paths,VTA light rail,light rail step-free path,transit and bike prompts
+seattle,Seattle,United States,Balance rail and ferry flows,Link light rail,step-free light rail,rail and ferry prompts
+toronto,Toronto,Canada,Coordinate rail and streetcar arrivals,GO Transit,step-free GO route,transit-first messaging
+vancouver,Vancouver,Canada,Keep SkyTrain exits clear,SkyTrain,step-free SkyTrain,SkyTrain-first prompts
