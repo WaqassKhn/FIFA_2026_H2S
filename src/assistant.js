@@ -148,7 +148,39 @@ export async function answerQuestion(payload = {}, options = {}) {
   const cards = buildDecisionCards(venue, telemetry);
   const context = buildContext({ venue, scenario, telemetry, language, role, question, route, cards, mobilityNeed });
 
-  if (options.groqApiKey) {
+  const preferredProvider = payload.provider || "auto";
+
+  // 1. Try Gemini if selected or in auto mode with Gemini Key configured
+  if ((preferredProvider === "gemini" && options.geminiApiKey) || (preferredProvider === "auto" && options.geminiApiKey)) {
+    try {
+      const answer = await callGemini(context, {
+        apiKey: options.geminiApiKey,
+        model: options.geminiModel || "gemini-2.5-flash"
+      });
+      if (answer) {
+        return {
+          mode: "gemini",
+          model: options.geminiModel || "gemini-2.5-flash",
+          answer,
+          telemetry,
+          route,
+          cards,
+          sourceSummary: COPY[language].source
+        };
+      }
+    } catch (error) {
+      if (preferredProvider === "gemini") {
+        return {
+          ...fallbackAnswer({ venue, scenario, telemetry, language, role, question, route, cards, mobilityNeed }),
+          modelError: safeError(error)
+        };
+      }
+      console.warn(`[Gemini API Warning] ${error.message}. trying next.`);
+    }
+  }
+
+  // 2. Try Groq if selected or in auto mode with Groq Key configured
+  if ((preferredProvider === "groq" && options.groqApiKey) || (preferredProvider === "auto" && options.groqApiKey)) {
     try {
       const answer = await callGroq(context, {
         apiKey: options.groqApiKey,
@@ -167,12 +199,18 @@ export async function answerQuestion(payload = {}, options = {}) {
         };
       }
     } catch (error) {
-      return {
-        ...fallbackAnswer({ venue, scenario, telemetry, language, role, question, route, cards, mobilityNeed }),
-        modelError: safeError(error)
-      };
+      if (preferredProvider === "groq") {
+        return {
+          ...fallbackAnswer({ venue, scenario, telemetry, language, role, question, route, cards, mobilityNeed }),
+          modelError: safeError(error)
+        };
+      }
+      console.warn(`[Groq API Warning] ${error.message}. trying next.`);
     }
-  } else if (options.apiKey) {
+  }
+
+  // 3. Try OpenAI if selected or in auto mode with OpenAI Key configured
+  if ((preferredProvider === "openai" && options.apiKey) || (preferredProvider === "auto" && options.apiKey)) {
     try {
       const answer = await callOpenAI(context, options);
       if (answer) {
@@ -401,6 +439,49 @@ async function callGroq(context, options) {
 
   const payload = await response.json();
   return payload.choices?.[0]?.message?.content?.trim() || "";
+}
+
+async function callGemini(context, options) {
+  const modelName = options.model || "gemini-2.5-flash";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${options.apiKey}`;
+  
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    signal: AbortSignal.timeout(options.timeoutMs || 15000),
+    body: JSON.stringify({
+      contents: [
+        {
+          parts: [
+            {
+              text: context.user
+            }
+          ]
+        }
+      ],
+      systemInstruction: {
+        parts: [
+          {
+            text: context.system
+          }
+        ]
+      },
+      generationConfig: {
+        temperature: 0.2,
+        maxOutputTokens: 900
+      }
+    })
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Gemini request failed (${response.status}): ${message.slice(0, 300)}`);
+  }
+
+  const payload = await response.json();
+  return payload.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
 }
 
 export function extractOpenAIText(payload) {

@@ -97,7 +97,9 @@ async function handleApi(request, response, url) {
       apiKey: process.env.OPENAI_API_KEY,
       model: process.env.OPENAI_MODEL,
       groqApiKey: process.env.GROQ_API_KEY,
-      groqModel: process.env.GROQ_MODEL
+      groqModel: process.env.GROQ_MODEL,
+      geminiApiKey: process.env.GEMINI_API_KEY,
+      geminiModel: process.env.GEMINI_MODEL
     });
     sendJson(response, 200, result);
     return;

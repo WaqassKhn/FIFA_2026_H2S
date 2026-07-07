@@ -1053,6 +1053,9 @@ async function askAssistant() {
   els.answerBox.innerHTML = `<p class="empty-state">${t("working")}</p>`;
   pulse(els.answerBox);
   try {
+    const providerSelect = document.querySelector("#providerSelect");
+    const provider = providerSelect ? providerSelect.value : "auto";
+
     const result = await fetchJson("/api/assistant", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1064,7 +1067,8 @@ async function askAssistant() {
         destination: state.selectedDestination,
         mobilityNeed: state.selectedMobility,
         question: els.questionInput.value,
-        externalWeather: state.telemetry?.externalWeather
+        externalWeather: state.telemetry?.externalWeather,
+        provider: provider
       })
     });
     state.telemetry = result.telemetry;
@@ -1075,7 +1079,9 @@ async function askAssistant() {
         ? t("openAiMode", { model: result.model })
         : result.mode === "groq"
           ? t("groqMode", { model: result.model })
-          : t("localGroundedFallback");
+          : result.mode === "gemini"
+            ? `Active Mode: Gemini (${result.model})`
+            : t("localGroundedFallback");
     }
     els.answerBox.innerHTML = parseMarkdown(result.modelError
       ? `${result.answer}\n\n${t("providerNote", { message: result.modelError })}`
@@ -1085,7 +1091,11 @@ async function askAssistant() {
     renderRoute(state.venue, state.route, state.telemetry);
     pulse(els.answerBox);
   } catch (error) {
-    els.answerBox.innerHTML = parseMarkdown(t("unablePlan", { message: error.message }));
+    let extraWarning = "";
+    if (error.message.includes("404") || window.location.protocol === "file:") {
+      extraWarning = `\n\n> **Connection Notice**\n> This 404 error typically occurs when the page is opened directly as a local file (\`file://\`) or through a static server (like VS Code Live Server on port 5500). The GenAI assistant requires the active Node.js server backend to process API requests. Please run the Node.js server and make sure you are visiting **http://localhost:4173** in your browser.`;
+    }
+    els.answerBox.innerHTML = parseMarkdown(t("unablePlan", { message: error.message }) + extraWarning);
     if (els.assistantMode) els.assistantMode.textContent = t("assistantError");
   } finally {
     els.askButton.disabled = false;
