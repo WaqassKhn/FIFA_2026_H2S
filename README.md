@@ -1,107 +1,72 @@
-# Matchday Stadium Copilot ⚽🏆
+# Matchday Stadium Copilot
 
-Matchday Stadium Copilot is a GenAI-enabled stadium operations and fan assistance command center for the **FIFA World Cup 2026™**. It enhances tournament navigation, crowd management, accessible services, transportation, and sustainability logistics by combining real-time API integrations, local stadium telemetry, deterministic risk calculations, and an AI planner.
+Matchday Stadium Copilot is an artificial intelligence assistant and command center built to optimize stadium operations and fan navigation during the FIFA World Cup 2026. By turning complex stadium telemetry, live transit schedules, weather variables, and accessibility requests into immediate, clear guidance, it keeps venue staff, organizers, volunteers, and tournament fans aligned under high-pressure matchday conditions.
 
-## Deployed URL
-**Live Demo:** [https://fifa-2026-h2s.onrender.com/](https://fifa-2026-h2s.onrender.com/)
+## What This System Achieves
 
----
+During a major tournament match, stadium operators face constant changes in crowd queues, gate entries, transit delays, and safety risks. This website solves those issues by acting as a single, centralized command dashboard:
 
-## 📋 Chosen Challenge Vertical
+* **Predicts and Scores Risks**: Calculates an operational risk score in real-time based on current gate lines, weather conditions, crowd densities, and transit loads.
+* **Simplifies Fan and Staff Decisions**: Recommends immediate operational tasks for gate managers, volunteers, transit coordinators, and safety teams.
+* **Optimizes Accessibility Routing**: Generates custom navigation instructions for users with wheelchair, sensory, hearing, or visual assistance requirements.
+* **Directs Transit and Crowds**: Provides live location details and direct links to driving navigation for transit hubs, fan zones, merchandise stores, and stadium gates.
+* **Drafts Instant Action Plans**: Uses an artificial intelligence helper to compile detailed operational plans for any specific stadium role or scenario automatically.
 
-**Stadium Operations & Tournament Fan Experience**: Designed specifically for venue staff, tournament organizers, volunteers, and fans. The solution acts as a unified command hub to resolve high-pressure matchday events across all 16 official host cities.
+## How the Solution Works
 
----
+The application operates as a lightweight, secure web portal built with static frontend assets and a robust local command engine:
 
-## ✨ Key Features & Solutions
+* **Telemetry Engine**: Processes live match phases, attendance counts, transit delays, and weather metrics. It dynamically determines a risk score from 0 to 100 to alert organizers to critical bottlenecks.
+* **Smart Filter Queries**: Selecting any stadium, matchday scenario, operator role, destination, or accessibility need instantly builds a natural language query, updates the user interface, and prompts the artificial intelligence planner for a response.
+* **Keyless Map Integration**: Embeds live, fully interactive mapping frames showing roads, parking gates, and actual stadium coordinates.
+* **Intelligent Background Monogram**: Features a mouse-tracking background grid that dynamically glows and scales as the cursor hovers near watermark patterns.
+* **Secure AI Architecture**: Connects safely to natural language processors on the server side, keeping all API keys protected, and falls back to a grounded local script if no keys are configured.
 
-### 1. GenAI Centerpiece Card (Top Focus)
-* **Permanent Hero Card**: Positioned prominently at the very top of the dashboard. It remains permanently open to display grounded operational plans.
-* **Markdown Rich-Text Formatter**: Implemented a markdown-to-HTML parser that translates headings, lists, bold notes, and quote block warnings into beautiful custom typography.
-* **Live Match Grounding**: Grounded the assistant in complete match fixtures, timelines, kickoffs, stages, and scores. The AI can answer questions like *"Who won at Boston?"* (England 2 - 0 Senegal) or *"What is the live score at Atlanta?"* (USA 1 - 1 Mexico).
+## Live Application Link
 
-### 2. Smart Filters to Auto-Query Generator
-* **Automatic Queries**: Changing any select option (**Venue, Scenario, Persona, Destination, Access Need, Language**) instantly updates the telemetry and compiles a descriptive natural language query in the textbox, triggering the GenAI planner automatically.
-* **Immediate Feedback**: The manual refresh button is removed; selecting any option updates the entire dashboard instantly.
-* **Boot-Activated Plan**: Triggers a baseline GenAI plan automatically on page load.
+Add your deployed public link here:
+[Insert Deployed Link Here]
 
-### 3. Active Main Navigation Anchor Actions
-* **Interactive Navigation Bar**: Anchors in the header bar are fully interactive:
-  - **Live Control**: Expands the live match feed, primary concern, and actions.
-  - **Venue Metrics**: Focuses on stadium telemetry and the host footprint map.
-  - **Staffing Hub**: Highlights volunteer actions and completed match history.
-  - **Emergency Escalation**: Automatically opens the GenAI Copilot assistant and displays primary risk concerns.
+## Local Setup Instructions
 
-### 4. Interactive Background (Louis Vuitton Symbol Grid)
-* **Subtle Branding**: Implemented a floating background grid of repeating FIFA icons (⚽, 🏆, 🏟️, ⏱️, 📣, 🚩, ⭐, 26).
-* **Mouse-Tracking Hover Glow**: Icons sit at a very low default opacity (`0.02`). Moving the mouse near icons (within `180px`) smoothly scales, rotates, and highlights them with a tournament teal glow (`#34d399`), creating a premium interactive background.
+Follow these simple steps to run the application on your computer.
 
-### 5. Custom Mobility Routing & Accessibility Glow
-* **♿ Accessible Route Badge**: Selecting a wheelchair, visual, hearing, or sensory need highlights the Route summary box with a glowing blue boundary and a distinct badge.
-* **Specific Route Steps**:
-  - **Wheelchair**: Routes through step-free ramps and accessible elevator checkpoints.
-  - **Visual**: Highlights tactile paving, braille signs, and audio guides.
-  - **Hearing**: Directs to overhead caption screens and visual queues.
-  - **Sensory**: Routes through low-noise bypass corridors.
+### Prerequisites
 
----
+Ensure you have the following installed:
+* Node.js version 20 or newer
+* A web browser
 
-## 🛠️ How the Code Works
+### Running the Project
 
-### Architecture
-- **`public/index.html`**: Premium glassmorphic interface shell featuring the Hero centered World Cup banner, Top Nav anchors, and grid panels.
-- **`public/app.js`**: Core frontend controller. Manages ticking timezone clocks, interactive background mouse tracking, markdown parsing, and automatic query triggers.
-- **`src/opsEngine.js`**: The telemetry engine. Calculates 0-100 risk score and drivers based on queues, density, transit loads, sustainability waste, and live weather.
-- **`src/assistant.js`**: Orchestrates LLM prompt injection. Grounded in the selected venue, live metrics, route plans, decision cards, and matches.
-
----
-
-## 🚀 Run Locally
-
-### Requirements
-- **Node.js v20** or newer
-- Zero external package installations required (runs on native Node modules)
-
-1. Start the server:
+1. Open your terminal or command prompt inside the project folder.
+2. Start the local server:
    ```bash
    node server/index.js
    ```
-2. Open your browser:
+3. Open your browser and navigate to:
    ```text
    http://localhost:4173
    ```
 
-### Optional OpenAI / Groq Integrations
-Set credentials in your environment or copy the example env:
-```bash
-cp .env.example .env
-```
-Inside `.env`:
-```text
-OPENAI_API_KEY=your_openai_key
-GROQ_API_KEY=your_groq_key
-```
+### Optional AI Configurations
 
----
+By default, the system runs on a grounded local database fallback. To connect to live OpenAI or Groq models, set up your credentials:
 
-## 🧪 Testing
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+2. Open the `.env` file and insert your API credentials:
+   ```text
+   OPENAI_API_KEY=your_openai_key_here
+   GROQ_API_KEY=your_groq_key_here
+   ```
+3. Restart your server.
 
-Run native Node.js unit tests:
+### Running Unit Tests
+
+To run the automated tests that validate risk math, accessibility routes, and API responses, run:
 ```bash
 npm test
 ```
-The test suite validates:
-- Risk levels scoring calculations
-- Scenario ingress queue surges
-- Accessibility route prioritization
-- Safety triggers for heat indexes
-- Offline fallback plan text parsing
-- Groq/OpenAI response format parsers
-
----
-
-## 🔒 Security & Safe Practices
-- **Strict Grounding**: Prompt rules prevent model hallucination or inventing emergency facts.
-- **No Client Keys**: API keys reside strictly on the server and are never exposed to the client.
-- **HTML Sanitization**: Escapes HTML brackets before parsing markdown to prevent cross-site scripting (XSS).
-- **Static File Protection**: Checks relative bounds to block directory traversal attacks.
