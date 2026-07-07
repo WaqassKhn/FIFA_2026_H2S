@@ -1,4 +1,4 @@
-import { LANGUAGES, ROLES, SCENARIOS } from "./data/venues.js";
+import { LANGUAGES, ROLES, SCENARIOS, MATCH_FIXTURES } from "./data/venues.js";
 import { buildDecisionCards, buildTelemetry, findScenario, findVenue, getRoutePlan } from "./opsEngine.js";
 
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
@@ -236,10 +236,24 @@ export function fallbackAnswer({ venue, scenario, telemetry, language, role, que
     `${copy.safety}: ${copy.medical}`
   ];
 
+  let matchInfoResponse = "";
+  const lowQuestion = question.toLowerCase();
+  if (lowQuestion.includes("won") || lowQuestion.includes("win") || lowQuestion.includes("score") || lowQuestion.includes("result") || lowQuestion.includes("match") || lowQuestion.includes("play")) {
+    const venueMatches = MATCH_FIXTURES.filter(m => m.venueId === venue.id);
+    if (venueMatches.length > 0) {
+      matchInfoResponse = "\n\n### Match Information\n" + venueMatches.map(m => {
+        const scoreStr = m.status === "completed" || m.status === "live"
+          ? ` (${m.home.name} ${m.home.score} - ${m.away.score} ${m.away.name})`
+          : "";
+        return `- **[${m.status.toUpperCase()}]** ${m.stage}: ${m.home.name} vs ${m.away.name}${scoreStr} at ${m.kickoffLocal} (Attendance: ${m.attendance.toLocaleString() || "N/A"}).`;
+      }).join("\n");
+    }
+  }
+
   return {
     mode: "local",
     model: "grounded-planning-fallback",
-    answer: [actionLines.join("\n"), routeLines.join("\n"), opsLines.join("\n")].join("\n\n"),
+    answer: [actionLines.join("\n"), routeLines.join("\n"), opsLines.join("\n")].join("\n\n") + matchInfoResponse,
     telemetry,
     route,
     cards,
@@ -306,6 +320,7 @@ function buildContext({ venue, scenario, telemetry, language, role, question, ro
       "Support fans, organizers, volunteers, and venue staff with concise real-world actions.",
       "Do not invent live facts, private data, police instructions, or emergency status.",
       "For medical, safety, missing-person, or immediate-danger cases, tell the user to contact venue medical or emergency services.",
+      "Format your response clearly using markdown: use bullet points for steps, bold headings, and blockquotes for warnings or critical notices. Ensure it is highly readable and structured.",
       `Respond in ${languageName(language)}.`
     ].join(" "),
     user: JSON.stringify({
@@ -327,7 +342,8 @@ function buildContext({ venue, scenario, telemetry, language, role, question, ro
       scenario: { id: scenario.id, label: scenario.label, summary: scenario.summary },
       telemetry,
       route,
-      decisionCards: cards
+      decisionCards: cards,
+      matches: MATCH_FIXTURES
     }, null, 2)
   };
 }

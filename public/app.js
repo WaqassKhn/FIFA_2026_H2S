@@ -452,7 +452,9 @@ const destinationOptions = [
   { id: "medical", label: { en: "Medical support", es: "Apoyo medico", fr: "Aide medicale" } },
   { id: "accessibility", label: { en: "Accessible services", es: "Servicios accesibles", fr: "Services accessibles" } },
   { id: "water", label: { en: "Water and shade", es: "Agua y sombra", fr: "Eau et ombre" } },
-  { id: "sustainability", label: { en: "Recycling and refill", es: "Reciclaje y recarga", fr: "Tri et remplissage" } }
+  { id: "sustainability", label: { en: "Recycling and refill", es: "Reciclaje y recarga", fr: "Tri et remplissage" } },
+  { id: "fanzone", label: { en: "FIFA Fan Festival", es: "Festival de Aficionados", fr: "FIFA Fan Festival" } },
+  { id: "merchandise", label: { en: "Official Merchandise", es: "Tienda Oficial", fr: "Boutique Officielle" } }
 ];
 
 const mobilityOptions = [
@@ -488,6 +490,46 @@ const ownerKeys = {
   Medical: "medical"
 };
 
+function initFifaBackground() {
+  const bg = document.createElement("div");
+  bg.className = "fifa-bg-grid";
+  bg.setAttribute("aria-hidden", "true");
+  
+  const symbols = ["⚽", "🏆", "🏟️", "⏱️", "📣", "🚩", "⭐", "26"];
+  const count = 120;
+  for (let i = 0; i < count; i++) {
+    const span = document.createElement("span");
+    span.textContent = symbols[i % symbols.length];
+    span.style.setProperty("--rotation", `${(i * 37) % 360}deg`);
+    bg.appendChild(span);
+  }
+  document.body.prepend(bg);
+  
+  document.addEventListener("mousemove", (e) => {
+    const x = e.clientX;
+    const y = e.clientY;
+    const spans = bg.querySelectorAll("span");
+    spans.forEach(span => {
+      const rect = span.getBoundingClientRect();
+      const dx = x - (rect.left + rect.width / 2);
+      const dy = y - (rect.top + rect.height / 2);
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 180) {
+        const factor = (180 - dist) / 180;
+        span.style.opacity = 0.02 + factor * 0.18;
+        span.style.transform = `scale(${1 + factor * 0.15}) rotate(calc(var(--rotation) + ${factor * 12}deg))`;
+        span.style.color = `rgba(52, 211, 153, ${0.1 + factor * 0.35})`;
+        span.style.textShadow = `0 0 ${factor * 10}px rgba(52, 211, 153, 0.45)`;
+      } else {
+        span.style.opacity = "";
+        span.style.transform = "";
+        span.style.color = "";
+        span.style.textShadow = "";
+      }
+    });
+  });
+}
+
 boot();
 
 async function boot() {
@@ -506,12 +548,80 @@ async function boot() {
   applyLanguage();
   bindEvents();
   initTabs();
+  initFifaBackground();
   
   const initialVenue = state.venues.find(v => v.id === state.selectedVenueId);
   if (initialVenue) startVenueClock(initialVenue.timezone);
 
   await refreshTelemetry("initial");
+  els.questionInput.value = buildAutoQuery();
+  await askAssistant();
   setInterval(() => refreshTelemetry("background"), 20000);
+}
+
+function buildAutoQuery() {
+  const venue = state.venues.find(v => v.id === state.selectedVenueId);
+  const scenario = state.scenarios.find(s => s.id === state.selectedScenarioId);
+  const role = state.roles.find(r => r.id === state.selectedRole);
+  
+  const roleLabel = roleLabels[role.id]?.[state.selectedLanguage] || role.label;
+  const scenarioLabel = scenarioLabels[scenario.id]?.[state.selectedLanguage] || scenario.label;
+  const destinationLabel = optionLabel(destinationOptions, state.selectedDestination);
+  const mobilityLabel = optionLabel(mobilityOptions, state.selectedMobility);
+  
+  let q = "";
+  if (state.selectedLanguage === "es") {
+    q = `Proporciona el plan operativo para una persona de tipo [${roleLabel}] en ${venue.city} durante el escenario [${scenarioLabel}]. Destino principal: [${destinationLabel}]. Requisito especial: [${mobilityLabel}].`;
+  } else if (state.selectedLanguage === "fr") {
+    q = `Fournir le plan d'operation pour un [${roleLabel}] a ${venue.city} pendant le scenario [${scenarioLabel}]. Destination : [${destinationLabel}]. Besoin d'acces : [${mobilityLabel}].`;
+  } else {
+    q = `Provide the matchday operations plan for a [${roleLabel}] at ${venue.city} stadium during [${scenarioLabel}]. Destination: [${destinationLabel}]. Access requirement: [${mobilityLabel}].`;
+  }
+  return q;
+}
+
+function parseMarkdown(text) {
+  if (!text) return "";
+  let html = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+  html = html.replace(/^### (.*?)$/gm, "<h4>$1</h4>");
+  html = html.replace(/^## (.*?)$/gm, "<h3>$1</h3>");
+  html = html.replace(/^# (.*?)$/gm, "<h2>$1</h2>");
+  html = html.replace(/^&gt; (.*?)$/gm, "<blockquote>$1</blockquote>");
+  let inList = false;
+  const lines = html.split("\n");
+  const parsedLines = lines.map(line => {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+      const content = trimmed.substring(2);
+      let prefix = "";
+      if (!inList) {
+        inList = true;
+        prefix = "<ul>";
+      }
+      return `${prefix}<li>${content}</li>`;
+    } else {
+      let suffix = "";
+      if (inList) {
+        inList = false;
+        suffix = "</ul>";
+      }
+      return `${suffix}${line}`;
+    }
+  });
+  if (inList) parsedLines.push("</ul>");
+  html = parsedLines.join("\n");
+  html = html.split("\n\n").map(p => {
+    const t = p.trim();
+    if (t.startsWith("<ul") || t.startsWith("<li") || t.startsWith("<h") || t.startsWith("<block")) {
+      return p;
+    }
+    return `<p>${p.replace(/\n/g, "<br>")}</p>`;
+  }).join("\n");
+  return html;
 }
 
 function bindEvents() {
@@ -519,46 +629,69 @@ function bindEvents() {
     state.selectedVenueId = els.venueSelect.value;
     const v = state.venues.find(item => item.id === state.selectedVenueId);
     if (v) startVenueClock(v.timezone);
+    els.questionInput.value = buildAutoQuery();
     await refreshTelemetry("filter");
-    if (state.assistantQueried) askAssistant();
+    await askAssistant();
   });
   els.scenarioSelect.addEventListener("change", async () => {
     state.selectedScenarioId = els.scenarioSelect.value;
-    if (state.selectedScenarioId !== "baseline") {
-      setActiveTab("decisions");
-    }
+    els.questionInput.value = buildAutoQuery();
     await refreshTelemetry("filter");
-    if (state.assistantQueried) askAssistant();
+    await askAssistant();
   });
   els.roleSelect.addEventListener("change", () => {
     state.selectedRole = els.roleSelect.value;
+    els.questionInput.value = buildAutoQuery();
     renderAll(state.venue, "filter");
-    if (state.assistantQueried) askAssistant();
+    askAssistant();
   });
   els.languageSelect.addEventListener("change", () => {
     state.selectedLanguage = els.languageSelect.value;
     applyLanguage();
     populateControls();
+    els.questionInput.value = buildAutoQuery();
     renderAll(state.venue, "language");
-    if (state.assistantQueried) askAssistant();
+    askAssistant();
   });
   els.destinationSelect.addEventListener("change", async () => {
     state.selectedDestination = els.destinationSelect.value;
-    setActiveTab("route");
+    els.questionInput.value = buildAutoQuery();
     await refreshTelemetry("filter");
-    if (state.assistantQueried) askAssistant();
+    await askAssistant();
   });
   els.mobilitySelect.addEventListener("change", async () => {
     state.selectedMobility = els.mobilitySelect.value;
-    setActiveTab("route");
+    els.questionInput.value = buildAutoQuery();
     await refreshTelemetry("filter");
-    if (state.assistantQueried) askAssistant();
+    await askAssistant();
   });
-  els.refreshButton.addEventListener("click", () => refreshTelemetry("manual"));
+  
+  // Bind top main navigation clicks
+  const navLinks = document.querySelectorAll(".main-nav .nav-link");
+  navLinks.forEach(link => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      navLinks.forEach(l => l.classList.remove("active"));
+      link.classList.add("active");
+      
+      const id = link.id;
+      if (id === "navLiveControl") {
+        setActiveTab("overview");
+      } else if (id === "navVenueMetrics") {
+        setActiveTab("signals");
+      } else if (id === "navStaffingHub") {
+        setActiveTab("decisions");
+      } else if (id === "navEmergencyEscalation") {
+        setActiveTab("assistant");
+        document.querySelector("#concernPanel")?.classList.add("expanded", "focused");
+      }
+    });
+  });
+
   els.askButton.addEventListener("click", askAssistant);
   els.clearButton.addEventListener("click", () => {
     state.assistantQueried = false;
-    els.answerBox.textContent = "";
+    els.answerBox.innerHTML = "";
     pulse(els.answerBox);
   });
 }
@@ -567,6 +700,7 @@ async function refreshTelemetry(reason = "manual") {
   const needsButtonLoader = reason === "manual" || reason === "filter" || reason === "initial";
   if (needsButtonLoader && els.refreshButton) {
     els.refreshButton.disabled = true;
+    els.refreshButton.classList.add("spinning");
   }
   try {
     const params = new URLSearchParams({
@@ -584,6 +718,7 @@ async function refreshTelemetry(reason = "manual") {
   } finally {
     if (needsButtonLoader && els.refreshButton) {
       els.refreshButton.disabled = false;
+      els.refreshButton.classList.remove("spinning");
     }
   }
 }
@@ -602,7 +737,9 @@ function renderAll(venue, reason = "manual") {
   renderQuickPrompts();
 
   if (reason !== "background") {
-    els.assistantMode.textContent = reason === "language" ? t("localFallbackReady") : t("contextUpdated");
+    if (els.assistantMode) {
+      els.assistantMode.textContent = reason === "language" ? t("localFallbackReady") : t("contextUpdated");
+    }
     pulse(document.querySelector(".workspace"));
   }
 }
@@ -614,7 +751,7 @@ function applyLanguage() {
   });
   els.sourceNote.textContent = t("sourceNote", { date: state.dataLastReviewed });
   if (!els.answerBox.textContent.trim()) {
-    els.assistantMode.textContent = t("localFallbackReady");
+    if (els.assistantMode) els.assistantMode.textContent = t("localFallbackReady");
   }
   if (!els.questionInput.value.trim() || Object.values(dictionaries).some((dict) => dict.defaultQuestion === els.questionInput.value)) {
     els.questionInput.value = t("defaultQuestion");
@@ -759,6 +896,19 @@ function renderDecisions(cards, venue, telemetry) {
     const node = document.createElement("article");
     node.className = "decision-card tile-pop";
     node.style.setProperty("--delay", `${index * 45}ms`);
+
+    // Add persona card highlighting
+    const roleId = state.selectedRole;
+    let isPreferred = false;
+    if (roleId === "volunteer" && card.owner === "Volunteer lead") isPreferred = true;
+    if (roleId === "venue-staff" && (card.owner === "Venue services" || card.owner === "Operations")) isPreferred = true;
+    if (roleId === "organizer" && (card.owner === "Operations" || card.owner === "Medical")) isPreferred = true;
+    if (roleId === "fan" && (card.title === "Crowd flow" || card.title === "Transit" || card.title === "Sustainability")) isPreferred = true;
+
+    if (isPreferred) {
+      node.classList.add("highlighted-role-card");
+    }
+
     const head = document.createElement("div");
     head.className = "card-head";
     const title = document.createElement("h4");
@@ -780,32 +930,31 @@ function renderDecisions(cards, venue, telemetry) {
 
 function renderRoute(venue, route, telemetry) {
   const needsAccessibleRoute = state.selectedMobility !== "none";
-  const avoidPrimary = telemetry.crowdDensity > 70;
-  const destination = routeTarget(venue);
-  const start = avoidPrimary ? venue.operations.secondaryIngress : venue.operations.primaryIngress;
-  const services = venue.accessibility.slice(0, 2).join(" and ");
-
-  const steps = [
-    t("routeStart", { place: start }),
-    avoidPrimary ? t("routeAvoid", { place: venue.operations.chokePoints[0] }) : t("routeUseSigns", { place: venue.operations.primaryIngress }),
-    needsAccessibleRoute ? t("routeAccessible", { place: venue.operations.accessibleEntry }) : t("routeUseSigns", { place: destination }),
-    t("routeEnd", { place: destination })
-  ];
-
   const nodes = [];
   const summary = document.createElement("div");
   summary.className = "route-step route-summary";
+  if (needsAccessibleRoute) {
+    summary.classList.add("accessible-active");
+  }
   summary.innerHTML = `<strong></strong><small></small>`;
-  summary.querySelector("strong").textContent = t("routeSummary", {
+  
+  // Custom route title based on selected persona
+  const roleId = state.selectedRole;
+  let routeTitleText = t("routeSummary", {
     destination: optionLabel(destinationOptions, state.selectedDestination),
     minutes: route.etaMinutes
   });
-  summary.querySelector("small").textContent = needsAccessibleRoute
-    ? t("accessibleNote", { services })
-    : t("accessibleAlternate", { place: venue.operations.accessibleEntry });
+  if (roleId === "volunteer") {
+    routeTitleText = `♿ [Volunteer Assistant] Guide fans to: ${optionLabel(destinationOptions, state.selectedDestination)} (${route.etaMinutes} mins)`;
+  } else if (roleId === "venue-staff" || roleId === "organizer") {
+    routeTitleText = `📋 [Staff Access Path] Destination: ${optionLabel(destinationOptions, state.selectedDestination)} (${route.etaMinutes} mins)`;
+  }
+
+  summary.querySelector("strong").textContent = routeTitleText;
+  summary.querySelector("small").textContent = route.accessibilityNote;
   nodes.push(summary);
 
-  for (const step of steps) {
+  for (const step of route.steps) {
     const item = document.createElement("div");
     item.className = "route-step";
     item.textContent = step;
@@ -884,10 +1033,10 @@ function renderQuickPrompts() {
 
 async function askAssistant() {
   state.assistantQueried = true;
-  setActiveTab("assistant");
+  setActiveTab("assistant", false); // Do not auto-scroll on background/automatic queries
   els.askButton.disabled = true;
-  els.assistantMode.textContent = t("generatingPlan");
-  els.answerBox.textContent = t("working");
+  if (els.assistantMode) els.assistantMode.textContent = t("generatingPlan");
+  els.answerBox.innerHTML = `<p class="empty-state">${t("working")}</p>`;
   pulse(els.answerBox);
   try {
     const result = await fetchJson("/api/assistant", {
@@ -907,21 +1056,23 @@ async function askAssistant() {
     state.telemetry = result.telemetry;
     state.route = result.route;
     state.cards = result.cards;
-    els.assistantMode.textContent = result.mode === "openai"
-      ? t("openAiMode", { model: result.model })
-      : result.mode === "groq"
-        ? t("groqMode", { model: result.model })
-        : t("localGroundedFallback");
-    els.answerBox.textContent = result.modelError
+    if (els.assistantMode) {
+      els.assistantMode.textContent = result.mode === "openai"
+        ? t("openAiMode", { model: result.model })
+        : result.mode === "groq"
+          ? t("groqMode", { model: result.model })
+          : t("localGroundedFallback");
+    }
+    els.answerBox.innerHTML = parseMarkdown(result.modelError
       ? `${result.answer}\n\n${t("providerNote", { message: result.modelError })}`
-      : result.answer;
+      : result.answer);
     renderConcern(state.telemetry);
     renderDecisions(state.cards, state.venue, state.telemetry);
     renderRoute(state.venue, state.route, state.telemetry);
     pulse(els.answerBox);
   } catch (error) {
-    els.answerBox.textContent = t("unablePlan", { message: error.message });
-    els.assistantMode.textContent = t("assistantError");
+    els.answerBox.innerHTML = parseMarkdown(t("unablePlan", { message: error.message }));
+    if (els.assistantMode) els.assistantMode.textContent = t("assistantError");
   } finally {
     els.askButton.disabled = false;
   }
@@ -1188,34 +1339,31 @@ function initTabs() {
     });
   });
 
-  // Switch tabs on collapsed panel clicks
-  const panelHooks = [
-    { id: "#matchFocusPanel", tab: "match" },
-    { id: "#concernPanel", tab: "signals" },
-    { id: "#telemetryPanel", tab: "signals" },
-    { id: "#decisionsPanel", tab: "decisions" },
-    { id: "#routePanel", tab: "route" },
-    { id: "#mapPanel", tab: "route" },
-    { id: "#historyPanel", tab: "match" },
-    { id: "#assistantPanel", tab: "assistant" }
-  ];
-
-  panelHooks.forEach((p) => {
-    const el = document.querySelector(p.id);
+  const allIds = ["#concernPanel", "#decisionsPanel", "#matchFocusPanel", "#telemetryPanel", "#routePanel", "#mapPanel", "#historyPanel", "#assistantPanel"];
+  
+  allIds.forEach((id) => {
+    const el = document.querySelector(id);
     if (el) {
-      el.addEventListener("click", () => {
-        if (!el.classList.contains("focused")) {
-          setActiveTab(p.tab);
-          document.querySelector(".workspace-title-bar")?.scrollIntoView({ behavior: "smooth" });
-        }
-      });
+      const head = el.querySelector(".panel-head");
+      if (head) {
+        head.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const isExpanded = el.classList.contains("focused") || el.classList.contains("expanded");
+          if (isExpanded) {
+            el.classList.remove("focused", "expanded");
+          } else {
+            el.classList.add("focused", "expanded");
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      }
     }
   });
 
-  setActiveTab("overview");
+  setActiveTab("overview", false);
 }
 
-function setActiveTab(tabName) {
+function setActiveTab(tabName, scrollTo = true) {
   state.activeTab = tabName;
 
   document.querySelectorAll(".tab-button").forEach((btn) => {
@@ -1243,13 +1391,15 @@ function setActiveTab(tabName) {
     if (el) {
       const isFocused = focusedIds.includes(id);
       el.classList.toggle("focused", isFocused);
-      el.style.order = isFocused ? "1" : "3";
+      el.classList.toggle("expanded", isFocused);
+      el.style.order = "";
     }
   });
 
-  const divider = document.querySelector("#additionalSectionsHeader");
-  if (divider) {
-    const hasSecondary = allIds.some(id => !focusedIds.includes(id) && document.querySelector(id));
-    divider.style.display = hasSecondary ? "block" : "none";
+  if (scrollTo && focusedIds.length > 0) {
+    const firstEl = document.querySelector(focusedIds[0]);
+    if (firstEl) {
+      firstEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }
 }

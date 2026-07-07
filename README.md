@@ -1,109 +1,107 @@
-# Matchday Stadium Copilot
+# Matchday Stadium Copilot ⚽🏆
 
-GenAI-enabled stadium operations and fan assistance for the FIFA World Cup 2026.
+Matchday Stadium Copilot is a GenAI-enabled stadium operations and fan assistance command center for the **FIFA World Cup 2026™**. It enhances tournament navigation, crowd management, accessible services, transportation, and sustainability logistics by combining real-time API integrations, local stadium telemetry, deterministic risk calculations, and an AI planner.
 
-## Chosen vertical
+## Deployed URL
+**Live Demo:** [https://fifa-2026-h2s.onrender.com/](https://fifa-2026-h2s.onrender.com/)
 
-Stadium operations and the tournament fan experience. The primary personas are venue staff, organizers, volunteers, and fans who need fast, grounded help during high-pressure matchday conditions.
+---
 
-## What it does
+## 📋 Chosen Challenge Vertical
 
-Matchday Stadium Copilot combines a seeded public venue dataset, simulated matchday telemetry, deterministic risk scoring, route planning, multilingual response logic, and an optional OpenAI assistant endpoint. It helps users decide how to handle gate queues, crowd density, accessible routes, transit delays, medical escalation, heat risk, and sustainability operations.
+**Stadium Operations & Tournament Fan Experience**: Designed specifically for venue staff, tournament organizers, volunteers, and fans. The solution acts as a unified command hub to resolve high-pressure matchday events across all 16 official host cities.
 
-Core workflows:
+---
 
-- Select one of the 16 FIFA World Cup 2026 host venues.
-- Simulate real operational scenarios such as ingress rush, transit delay, heat advisory, accessibility surge, weather hold, and waste overflow.
-- See a live risk score with top operational drivers.
-- Review recommended actions for crowd flow, transit, accessibility, safety, and sustainability.
-- Ask the GenAI assistant for a contextual plan in English, Spanish, or French.
-- Run without paid services using the local grounded fallback, or set `OPENAI_API_KEY` for model-generated responses.
+## ✨ Key Features & Solutions
 
-## How the logic works
+### 1. GenAI Centerpiece Card (Top Focus)
+* **Permanent Hero Card**: Positioned prominently at the very top of the dashboard. It remains permanently open to display grounded operational plans.
+* **Markdown Rich-Text Formatter**: Implemented a markdown-to-HTML parser that translates headings, lists, bold notes, and quote block warnings into beautiful custom typography.
+* **Live Match Grounding**: Grounded the assistant in complete match fixtures, timelines, kickoffs, stages, and scores. The AI can answer questions like *"Who won at Boston?"* (England 2 - 0 Senegal) or *"What is the live score at Atlanta?"* (USA 1 - 1 Mexico).
 
-`src/data/venues.js` stores compact public planning data for venues, transit modes, accessibility services, sustainability actions, and venue-specific operations notes. `src/opsEngine.js` builds scenario telemetry and calculates a 0-100 risk score from queues, crowd density, transit load, heat, weather, accessibility demand, waste load, and incidents.
+### 2. Smart Filters to Auto-Query Generator
+* **Automatic Queries**: Changing any select option (**Venue, Scenario, Persona, Destination, Access Need, Language**) instantly updates the telemetry and compiles a descriptive natural language query in the textbox, triggering the GenAI planner automatically.
+* **Immediate Feedback**: The manual refresh button is removed; selecting any option updates the entire dashboard instantly.
+* **Boot-Activated Plan**: Triggers a baseline GenAI plan automatically on page load.
 
-`src/assistant.js` creates a grounded prompt with only the selected venue, telemetry, route plan, and decision cards. If `OPENAI_API_KEY` is configured, `/api/assistant` calls the OpenAI Responses API. If not, it uses a local planning fallback so judges can test the project without secrets.
+### 3. Active Main Navigation Anchor Actions
+* **Interactive Navigation Bar**: Anchors in the header bar are fully interactive:
+  - **Live Control**: Expands the live match feed, primary concern, and actions.
+  - **Venue Metrics**: Focuses on stadium telemetry and the host footprint map.
+  - **Staffing Hub**: Highlights volunteer actions and completed match history.
+  - **Emergency Escalation**: Automatically opens the GenAI Copilot assistant and displays primary risk concerns.
 
-The assistant intentionally includes safety guardrails: it does not replace emergency services and always escalates medical, missing-person, and immediate-danger cases to venue medical or emergency teams.
+### 4. Interactive Background (Louis Vuitton Symbol Grid)
+* **Subtle Branding**: Implemented a floating background grid of repeating FIFA icons (⚽, 🏆, 🏟️, ⏱️, 📣, 🚩, ⭐, 26).
+* **Mouse-Tracking Hover Glow**: Icons sit at a very low default opacity (`0.02`). Moving the mouse near icons (within `180px`) smoothly scales, rotates, and highlights them with a tournament teal glow (`#34d399`), creating a premium interactive background.
 
-## Run locally
+### 5. Custom Mobility Routing & Accessibility Glow
+* **♿ Accessible Route Badge**: Selecting a wheelchair, visual, hearing, or sensory need highlights the Route summary box with a glowing blue boundary and a distinct badge.
+* **Specific Route Steps**:
+  - **Wheelchair**: Routes through step-free ramps and accessible elevator checkpoints.
+  - **Visual**: Highlights tactile paving, braille signs, and audio guides.
+  - **Hearing**: Directs to overhead caption screens and visual queues.
+  - **Sensory**: Routes through low-noise bypass corridors.
 
-Requirements:
+---
 
-- Node.js 20 or newer
-- No package install is required
+## 🛠️ How the Code Works
 
-```bash
-node server/index.js
-```
+### Architecture
+- **`public/index.html`**: Premium glassmorphic interface shell featuring the Hero centered World Cup banner, Top Nav anchors, and grid panels.
+- **`public/app.js`**: Core frontend controller. Manages ticking timezone clocks, interactive background mouse tracking, markdown parsing, and automatic query triggers.
+- **`src/opsEngine.js`**: The telemetry engine. Calculates 0-100 risk score and drivers based on queues, density, transit loads, sustainability waste, and live weather.
+- **`src/assistant.js`**: Orchestrates LLM prompt injection. Grounded in the selected venue, live metrics, route plans, decision cards, and matches.
 
-Open:
+---
 
-```text
-http://localhost:4173
-```
+## 🚀 Run Locally
 
-Optional OpenAI mode:
+### Requirements
+- **Node.js v20** or newer
+- Zero external package installations required (runs on native Node modules)
 
+1. Start the server:
+   ```bash
+   node server/index.js
+   ```
+2. Open your browser:
+   ```text
+   http://localhost:4173
+   ```
+
+### Optional OpenAI / Groq Integrations
+Set credentials in your environment or copy the example env:
 ```bash
 cp .env.example .env
-# set OPENAI_API_KEY in .env or your deployment environment
-OPENAI_API_KEY=your_key_here node server/index.js
 ```
-
-On Windows PowerShell:
-
-```powershell
-$env:OPENAI_API_KEY="your_key_here"
-node server/index.js
-```
-
-## Test
-
-```bash
-node --test tests/*.test.js
-```
-
-The tests validate risk scoring, scenario changes, accessible routing, safety triggers, assistant fallback output, and OpenAI Responses API text parsing.
-
-## Data and assumptions
-
-The bundled dataset is intentionally small so the repository stays below the 10 MB challenge limit. It uses public planning information and approximate values for capacities, coordinates, transit modes, accessibility services, and operational notes.
-
-Sources are tracked in `data/public-data-sources.json` and include:
-
-- [FIFA World Cup 2026 official tournament hub](https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026)
-- [FIFA host cities media release](https://inside.fifa.com/media-releases/fifa-world-cup-2026-host-cities)
-- [Wikidata](https://www.wikidata.org/)
-- [OpenStreetMap](https://www.openstreetmap.org/)
-- [Kaggle public datasets catalog](https://www.kaggle.com/datasets) for optional future CSV joins
-
-Production deployment should replace simulated telemetry with live feeds such as ticket scanning, people counters, transit APIs, weather alerts, accessibility service requests, and venue incident systems.
-
-## Security and responsible AI
-
-- API keys stay on the server and are never sent to the browser.
-- The prompt is grounded to selected venue data and live scenario telemetry.
-- User text is rendered with `textContent`, not raw HTML.
-- The server blocks path traversal when serving static files.
-- Medical or emergency requests are routed to human emergency response.
-
-## Deployment
-
-Deployed at: https://fifa-2026-h2s.onrender.com/
-
-Set the start command:
-
-```bash
-node server/index.js
-```
-
-Set environment variables:
-
+Inside `.env`:
 ```text
-PORT=<provided by host>
-OPENAI_API_KEY=<optional>
-OPENAI_MODEL=gpt-5.2
+OPENAI_API_KEY=your_openai_key
+GROQ_API_KEY=your_groq_key
 ```
 
+---
+
+## 🧪 Testing
+
+Run native Node.js unit tests:
+```bash
+npm test
+```
+The test suite validates:
+- Risk levels scoring calculations
+- Scenario ingress queue surges
+- Accessibility route prioritization
+- Safety triggers for heat indexes
+- Offline fallback plan text parsing
+- Groq/OpenAI response format parsers
+
+---
+
+## 🔒 Security & Safe Practices
+- **Strict Grounding**: Prompt rules prevent model hallucination or inventing emergency facts.
+- **No Client Keys**: API keys reside strictly on the server and are never exposed to the client.
+- **HTML Sanitization**: Escapes HTML brackets before parsing markdown to prevent cross-site scripting (XSS).
+- **Static File Protection**: Checks relative bounds to block directory traversal attacks.

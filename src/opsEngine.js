@@ -187,7 +187,9 @@ export function getRoutePlan(venueId, destination = "gate", mobilityNeed = "none
     medical: { label: "Medical support", end: venue.operations.medical },
     accessibility: { label: "Accessible services", end: venue.operations.accessibleEntry },
     water: { label: "Water and shade", end: "nearest refill and shade station" },
-    sustainability: { label: "Recycling and refill point", end: "nearest sorting station" }
+    sustainability: { label: "Recycling and refill point", end: "nearest sorting station" },
+    fanzone: { label: "FIFA Fan Festival", end: "main sponsor festival plaza" },
+    merchandise: { label: "Official Merchandise Megastore", end: "stadium retail megastore" }
   };
   const target = destinationMap[destination] || destinationMap.gate;
   const start = avoidPrimary ? venue.operations.secondaryIngress : venue.operations.primaryIngress;
@@ -198,19 +200,44 @@ export function getRoutePlan(venueId, destination = "gate", mobilityNeed = "none
     avoidPrimary
       ? `Avoid ${venue.operations.chokePoints[0]} until density drops below 70 percent.`
       : `Use the signed lane toward ${venue.operations.primaryIngress}.`,
-    needsAccessibleRoute
-      ? `Use the step-free route and check in at ${venue.operations.accessibleEntry}.`
-      : `Follow staff line-of-sight markers toward ${target.end}.`,
-    `End at ${target.end}.`
   ];
+
+  if (mobilityNeed === "wheelchair") {
+    steps.push(`Use the step-free ramp at Gate ${venue.operations.accessibleEntry} (elevator access active).`);
+  } else if (mobilityNeed === "visual") {
+    steps.push(`Follow yellow tactile warning indicators and request audio guidance maps.`);
+  } else if (mobilityNeed === "hearing") {
+    steps.push(`Watch overhead digital caption boards for entry queue times.`);
+  } else if (mobilityNeed === "sensory") {
+    steps.push(`Follow the low-noise bypass corridor to avoid loud concourse zones.`);
+  } else if (needsAccessibleRoute) {
+    steps.push(`Use the step-free route and check in at ${venue.operations.accessibleEntry}.`);
+  } else {
+    steps.push(`Follow staff line-of-sight markers toward ${target.end}.`);
+  }
+
+  steps.push(`End at ${target.end}.`);
+
+  let accessibilityNote = "";
+  if (mobilityNeed === "wheelchair") {
+    accessibilityNote = `Wheelchair ramps, accessible lifts, and shuttle carts are active on this route.`;
+  } else if (mobilityNeed === "visual") {
+    accessibilityNote = `Tactile paving, braille signage, and audio wayfinding escorts are active on this route.`;
+  } else if (mobilityNeed === "hearing") {
+    accessibilityNote = `Assistive listening induction loops and live closed-caption screens are active on this route.`;
+  } else if (mobilityNeed === "sensory") {
+    accessibilityNote = `Noise-canceling headphones checkout and designated quiet zones are accessible along this route.`;
+  } else if (needsAccessibleRoute) {
+    accessibilityNote = `${venue.accessibility.slice(0, 2).join(" and ")} are available on this route.`;
+  } else {
+    accessibilityNote = `Accessible alternate: ${venue.operations.accessibleEntry}.`;
+  }
 
   return {
     destination: target.label,
     etaMinutes,
     steps,
-    accessibilityNote: needsAccessibleRoute
-      ? `${venue.accessibility.slice(0, 2).join(" and ")} are available on this route.`
-      : `Accessible alternate: ${venue.operations.accessibleEntry}.`,
+    accessibilityNote,
     avoid: avoidPrimary ? venue.operations.chokePoints.slice(0, 2) : []
   };
 }

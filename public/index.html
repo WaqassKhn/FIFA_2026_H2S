@@ -10,27 +10,29 @@
     <div class="app-shell">
       <main class="workspace">
         <header class="app-header">
-          <div class="header-top">
-            <div class="logo-area">
-              <div class="wc-badge">26</div>
-              <div class="brand-block">
-                <span class="eyebrow" data-i18n="brandEyebrow">FIFA World Cup 2026</span>
-                <h1 data-i18n="appTitle">Matchday Stadium Copilot</h1>
-              </div>
+          <div class="header-top-bar">
+            <div class="logo-mini">
+              <span class="wc-badge-mini">26</span>
+              <span class="eyebrow" data-i18n="brandEyebrow">FIFA World Cup 2026</span>
             </div>
-            
             <nav class="main-nav" aria-label="Main Navigation">
-              <a href="#" class="nav-link active">Live Control</a>
-              <a href="#" class="nav-link">Venue Metrics</a>
-              <a href="#" class="nav-link">Staffing Hub</a>
-              <a href="#" class="nav-link">Emergency Escalation</a>
+              <a href="#" class="nav-link active" id="navLiveControl">Live Control</a>
+              <a href="#" class="nav-link" id="navVenueMetrics">Venue Metrics</a>
+              <a href="#" class="nav-link" id="navStaffingHub">Staffing Hub</a>
+              <a href="#" class="nav-link" id="navEmergencyEscalation">Emergency Escalation</a>
             </nav>
-
             <div class="header-actions">
               <p class="source-note" id="sourceNote"></p>
-              <div class="mode-pill" id="assistantMode">Local fallback ready</div>
-              <button class="primary-button" id="refreshButton" type="button" data-i18n="refreshButton">Refresh telemetry</button>
             </div>
+          </div>
+
+          <div class="hero-banner">
+            <div class="hero-badge-row">
+              <span class="wc-hero-badge">⚽ FIFA WORLD CUP 2026™</span>
+              <span class="live-pulse-badge"><span class="pulse-dot"></span> LIVE OPERATIONS COMMAND</span>
+            </div>
+            <h1 class="hero-title" data-i18n="appTitle">Matchday Stadium Copilot</h1>
+            <p class="hero-subtitle">Real-time command hub, crowd mobility analytics, and AI-grounded decision support across all 16 host venues.</p>
           </div>
           
           <div class="filter-row">
@@ -79,6 +81,26 @@
         </div>
 
         <div class="dashboard-grid" id="dashboardGrid">
+          <!-- COPILOT ASSISTANT PANEL -->
+          <section class="tool-panel assistant-panel content-swap" id="assistantPanel" aria-labelledby="assistantTitle">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow" data-i18n="assistantEyebrow">GenAI assistant</p>
+                <h3 id="assistantTitle" data-i18n="assistantTitle">Ask for a grounded plan</h3>
+              </div>
+            </div>
+            <div class="quick-prompts" id="quickPrompts"></div>
+            <label class="question-label" for="questionInput">
+              <span data-i18n="questionLabel">Question</span>
+            </label>
+            <textarea id="questionInput" rows="4"></textarea>
+            <div class="assistant-actions">
+              <button class="primary-button" id="askButton" type="button" data-i18n="askButton">Generate plan</button>
+              <button class="secondary-button" id="clearButton" type="button" data-i18n="clearButton">Clear</button>
+            </div>
+            <div class="answer-box" id="answerBox" aria-live="polite"></div>
+          </section>
+
           <!-- PRIMARY CONCERN PANEL -->
           <section class="concern-panel tool-panel content-swap" aria-labelledby="concernTitle" id="concernPanel">
             <div class="panel-head">
@@ -175,28 +197,7 @@
             <div id="matchHistory"></div>
           </section>
 
-          <!-- COPILOT ASSISTANT PANEL -->
-          <section class="tool-panel assistant-panel content-swap" aria-labelledby="assistantPanel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow" data-i18n="assistantEyebrow">GenAI assistant</p>
-                <h3 id="assistantTitle" data-i18n="assistantTitle">Ask for a grounded plan</h3>
-              </div>
-            </div>
-            <div class="quick-prompts" id="quickPrompts"></div>
-            <label class="question-label" for="questionInput">
-              <span data-i18n="questionLabel">Question</span>
-            </label>
-            <textarea id="questionInput" rows="4"></textarea>
-            <div class="assistant-actions">
-              <button class="primary-button" id="askButton" type="button" data-i18n="askButton">Generate plan</button>
-              <button class="secondary-button" id="clearButton" type="button" data-i18n="clearButton">Clear</button>
-            </div>
-            <div class="answer-box" id="answerBox" aria-live="polite"></div>
-          </section>
-
-          <!-- SECTION DIVIDER FOR COLLAPSED PANELS -->
-          <div class="section-divider" id="additionalSectionsHeader" style="order: 2;">Additional Sections</div>
+          <!-- SECTION DIVIDER FOR COLLAPSED PANELS REMOVED -->
         </div>
       </main>
     </div>
