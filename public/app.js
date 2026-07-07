@@ -495,11 +495,9 @@ function initFifaBackground() {
   bg.className = "fifa-bg-grid";
   bg.setAttribute("aria-hidden", "true");
   
-  const symbols = ["FIFA", "2026", "WORLD CUP", "USA", "MEXICO", "CANADA", "FOOTBALL", "SOCCER"];
   const count = 120;
   for (let i = 0; i < count; i++) {
     const span = document.createElement("span");
-    span.textContent = symbols[i % symbols.length];
     span.style.setProperty("--rotation", `${(i * 37) % 360}deg`);
     bg.appendChild(span);
   }
@@ -518,13 +516,11 @@ function initFifaBackground() {
         const factor = (180 - dist) / 180;
         span.style.opacity = 0.02 + factor * 0.18;
         span.style.transform = `scale(${1 + factor * 0.15}) rotate(calc(var(--rotation) + ${factor * 12}deg))`;
-        span.style.color = `rgba(52, 211, 153, ${0.1 + factor * 0.35})`;
-        span.style.textShadow = `0 0 ${factor * 10}px rgba(52, 211, 153, 0.45)`;
+        span.style.filter = `invert(${1 - factor * 0.4}) sepia(${factor}) saturate(${1 + factor * 4}) hue-rotate(${factor * 130}deg) brightness(${0.6 + factor * 0.6}) drop-shadow(0 0 ${factor * 8}px rgba(0, 242, 254, ${factor}))`;
       } else {
         span.style.opacity = "";
         span.style.transform = "";
-        span.style.color = "";
-        span.style.textShadow = "";
+        span.style.filter = "";
       }
     });
   });
