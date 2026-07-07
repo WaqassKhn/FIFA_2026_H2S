@@ -1,17 +1,39 @@
 import { SCENARIOS, VENUES } from "./data/venues.js";
 
+/**
+ * Clamps a numeric value between a minimum and maximum threshold.
+ * @param {number} value - The input value.
+ * @param {number} min - The lower boundary.
+ * @param {number} max - The upper boundary.
+ * @returns {number} The clamped value.
+ */
 export function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
+/**
+ * Finds a venue configuration object by its unique string identifier.
+ * @param {string} venueId - The venue ID.
+ * @returns {Object} The matched venue object or the default venue.
+ */
 export function findVenue(venueId) {
   return VENUES.find((venue) => venue.id === venueId) || VENUES[0];
 }
 
+/**
+ * Finds a matchday scenario configuration object by its unique string identifier.
+ * @param {string} scenarioId - The scenario ID.
+ * @returns {Object} The matched scenario object or the default baseline.
+ */
 export function findScenario(scenarioId) {
   return SCENARIOS.find((scenario) => scenario.id === scenarioId) || SCENARIOS[0];
 }
 
+/**
+ * Infers the active matchday phase based on the hour of the day.
+ * @param {Date} now - The active date/time object.
+ * @returns {string} The active matchday phase name.
+ */
 export function getMatchPhase(now = new Date()) {
   const hour = now.getHours();
   if (hour >= 8 && hour < 12) return "early operations";
@@ -21,6 +43,14 @@ export function getMatchPhase(now = new Date()) {
   return "overnight reset";
 }
 
+/**
+ * Generates synthetic or API-grounded telemetry datasets for a chosen venue and scenario.
+ * @param {string} venueId - The venue ID.
+ * @param {string} scenarioId - The scenario ID.
+ * @param {Date} now - The current date/time context.
+ * @param {Object|null} externalWeather - Weather inputs if retrieved from real-time API.
+ * @returns {Object} The populated telemetry data object.
+ */
 export function buildTelemetry(venueId, scenarioId = "baseline", now = new Date(), externalWeather = null) {
   const venue = findVenue(venueId);
   const scenario = findScenario(scenarioId);

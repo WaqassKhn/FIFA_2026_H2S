@@ -44,6 +44,12 @@ server.listen(port, () => {
   console.log(`Matchday Stadium Copilot running at http://localhost:${port}`);
 });
 
+/**
+ * Handles incoming API requests for health, venues, telemetry, and the GenAI assistant.
+ * @param {import("node:http").IncomingMessage} request - The incoming HTTP request.
+ * @param {import("node:http").ServerResponse} response - The outgoing HTTP response.
+ * @param {URL} url - The parsed request URL object.
+ */
 async function handleApi(request, response, url) {
   if (request.method === "GET" && url.pathname === "/api/health") {
     sendJson(response, 200, {
@@ -108,6 +114,11 @@ async function handleApi(request, response, url) {
   sendJson(response, 404, { error: "Not found" });
 }
 
+/**
+ * Serves static assets from the public directory.
+ * @param {import("node:http").ServerResponse} response - The outgoing HTTP response.
+ * @param {string} pathname - The clean request pathname.
+ */
 async function serveStatic(response, pathname) {
   const cleanPath = pathname === "/" ? "/index.html" : pathname;
   const requestedPath = resolve(publicDir, `.${cleanPath}`);
@@ -139,6 +150,11 @@ async function serveStatic(response, pathname) {
   response.end(content);
 }
 
+/**
+ * Reads and parses JSON payloads from incoming HTTP POST requests safely.
+ * @param {import("node:http").IncomingMessage} request - The incoming HTTP request stream.
+ * @returns {Promise<Object>} The parsed JSON payload.
+ */
 async function readJson(request) {
   const chunks = [];
   let totalBytes = 0;
@@ -154,6 +170,12 @@ async function readJson(request) {
   return JSON.parse(raw);
 }
 
+/**
+ * Sends a structured JSON payload with appropriate content-type and cache control.
+ * @param {import("node:http").ServerResponse} response - The outgoing HTTP response.
+ * @param {number} statusCode - The HTTP status code to return.
+ * @param {Object} payload - The object structure to send.
+ */
 function sendJson(response, statusCode, payload) {
   response.writeHead(statusCode, {
     "Content-Type": "application/json; charset=utf-8",
@@ -162,6 +184,10 @@ function sendJson(response, statusCode, payload) {
   response.end(JSON.stringify(payload));
 }
 
+/**
+ * Loads environment key-value pairs from a local .env configuration file.
+ * @param {string} filePath - The absolute path to the .env file.
+ */
 function loadDotEnv(filePath) {
   if (!existsSync(filePath)) return;
   const lines = readFileSync(filePath, "utf8").split(/\r?\n/);
@@ -181,6 +207,12 @@ function loadDotEnv(filePath) {
   }
 }
 
+/**
+ * Queries real-time weather details for stadium coordinates using the Open-Meteo API.
+ * @param {number} lat - The latitude coordinate.
+ * @param {number} lng - The longitude coordinate.
+ * @returns {Promise<Object>} The parsed weather telemetry fields.
+ */
 async function fetchRealTimeWeather(lat, lng) {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&temperature_unit=fahrenheit`;
   const response = await fetch(url, { signal: AbortSignal.timeout(4000) });

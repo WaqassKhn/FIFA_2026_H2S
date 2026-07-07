@@ -135,6 +135,13 @@ const FALLBACK_LABELS = {
   }
 };
 
+/**
+ * Analyzes stadium operations queries and calls configured LLM providers (Gemini, Groq, or OpenAI)
+ * to return grounded operational directives. Falls back to a local model ruleset on key issues.
+ * @param {Object} payload - The client request filters and details.
+ * @param {Object} options - Server credentials and model settings.
+ * @returns {Promise<Object>} The structured assistant response.
+ */
 export async function answerQuestion(payload = {}, options = {}) {
   const venue = findVenue(payload.venueId);
   const scenario = findScenario(payload.scenarioId || "baseline");
