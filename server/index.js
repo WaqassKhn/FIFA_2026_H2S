@@ -50,6 +50,7 @@ async function handleApi(request, response, url) {
       ok: true,
       app: "Matchday Stadium Copilot",
       openAiConfigured: Boolean(process.env.OPENAI_API_KEY),
+      groqConfigured: Boolean(process.env.GROQ_API_KEY),
       dataLastReviewed: DATA_LAST_REVIEWED
     });
     return;
@@ -86,7 +87,9 @@ async function handleApi(request, response, url) {
     const body = await readJson(request);
     const result = await answerQuestion(body, {
       apiKey: process.env.OPENAI_API_KEY,
-      model: process.env.OPENAI_MODEL
+      model: process.env.OPENAI_MODEL,
+      groqApiKey: process.env.GROQ_API_KEY,
+      groqModel: process.env.GROQ_MODEL
     });
     sendJson(response, 200, result);
     return;

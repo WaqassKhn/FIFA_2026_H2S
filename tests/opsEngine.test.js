@@ -82,3 +82,46 @@ test("extractOpenAIText supports Responses API output shape", () => {
 
   assert.equal(text, "First line\nSecond line");
 });
+
+test("assistant calls Groq API when groqApiKey is provided", async () => {
+  const originalFetch = global.fetch;
+  let fetchCalled = false;
+  let fetchBody = null;
+
+  global.fetch = async (url, options) => {
+    fetchCalled = true;
+    fetchBody = JSON.parse(options.body);
+    return {
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: "Mocked Groq Answer"
+            }
+          }
+        ]
+      })
+    };
+  };
+
+  try {
+    const result = await answerQuestion({
+      venueId: "mexico-city",
+      question: "How should staff handle crowd density?"
+    }, {
+      groqApiKey: "gsk_test_key",
+      groqModel: "llama-3.3-70b-versatile"
+    });
+
+    assert.equal(fetchCalled, true);
+    assert.equal(result.mode, "groq");
+    assert.equal(result.model, "llama-3.3-70b-versatile");
+    assert.equal(result.answer, "Mocked Groq Answer");
+    assert.equal(fetchBody.model, "llama-3.3-70b-versatile");
+    assert.equal(fetchBody.messages[0].role, "system");
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+

@@ -148,7 +148,31 @@ export async function answerQuestion(payload = {}, options = {}) {
   const cards = buildDecisionCards(venue, telemetry);
   const context = buildContext({ venue, scenario, telemetry, language, role, question, route, cards, mobilityNeed });
 
-  if (options.apiKey) {
+  if (options.groqApiKey) {
+    try {
+      const answer = await callGroq(context, {
+        apiKey: options.groqApiKey,
+        model: options.groqModel || "llama-3.3-70b-versatile",
+        endpoint: options.groqEndpoint || options.endpoint
+      });
+      if (answer) {
+        return {
+          mode: "groq",
+          model: options.groqModel || "llama-3.3-70b-versatile",
+          answer,
+          telemetry,
+          route,
+          cards,
+          sourceSummary: COPY[language].source
+        };
+      }
+    } catch (error) {
+      return {
+        ...fallbackAnswer({ venue, scenario, telemetry, language, role, question, route, cards, mobilityNeed }),
+        modelError: safeError(error)
+      };
+    }
+  } else if (options.apiKey) {
     try {
       const answer = await callOpenAI(context, options);
       if (answer) {
@@ -333,6 +357,34 @@ async function callOpenAI(context, options) {
 
   const payload = await response.json();
   return extractOpenAIText(payload);
+}
+
+async function callGroq(context, options) {
+  const response = await fetch(options.endpoint || "https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${options.apiKey}`,
+      "Content-Type": "application/json"
+    },
+    signal: AbortSignal.timeout(options.timeoutMs || 15000),
+    body: JSON.stringify({
+      model: options.model || "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: context.system },
+        { role: "user", content: context.user }
+      ],
+      temperature: 0.2,
+      max_tokens: 900
+    })
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Groq request failed (${response.status}): ${message.slice(0, 300)}`);
+  }
+
+  const payload = await response.json();
+  return payload.choices?.[0]?.message?.content?.trim() || "";
 }
 
 export function extractOpenAIText(payload) {

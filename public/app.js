@@ -140,6 +140,7 @@ const dictionaries = {
     noHistory: "No completed match history is assigned to this venue yet.",
     previousGames: "Previous games",
     openAiMode: "OpenAI {model}",
+    groqMode: "Groq {model}",
     quick1: "Gate queues are rising. What should operations do in the next 10 minutes?",
     quick2: "Give multilingual wayfinding instructions for a fan using transit.",
     quick3: "How should volunteers support accessible entry right now?",
@@ -262,6 +263,7 @@ const dictionaries = {
     noHistory: "Aun no hay historial finalizado para esta sede.",
     previousGames: "Partidos previos",
     openAiMode: "OpenAI {model}",
+    groqMode: "Groq {model}",
     quick1: "Las filas de entrada suben. Que debe hacer operaciones en 10 minutos?",
     quick2: "Da instrucciones multilingues para una persona que usa transporte.",
     quick3: "Como deben apoyar voluntarios la entrada accesible?",
@@ -384,6 +386,7 @@ const dictionaries = {
     noHistory: "Aucun match termine n'est encore lie a ce site.",
     previousGames: "Matchs precedents",
     openAiMode: "OpenAI {model}",
+    groqMode: "Groq {model}",
     quick1: "Les files montent. Que doit faire l'equipe operations dans 10 minutes ?",
     quick2: "Donne des consignes multilingues pour un supporter en transport.",
     quick3: "Comment les benevoles doivent-ils aider l'entree accessible ?",
@@ -889,7 +892,11 @@ async function askAssistant() {
     state.telemetry = result.telemetry;
     state.route = result.route;
     state.cards = result.cards;
-    els.assistantMode.textContent = result.mode === "openai" ? t("openAiMode", { model: result.model }) : t("localGroundedFallback");
+    els.assistantMode.textContent = result.mode === "openai"
+      ? t("openAiMode", { model: result.model })
+      : result.mode === "groq"
+        ? t("groqMode", { model: result.model })
+        : t("localGroundedFallback");
     els.answerBox.textContent = result.modelError
       ? `${result.answer}\n\n${t("providerNote", { message: result.modelError })}`
       : result.answer;
