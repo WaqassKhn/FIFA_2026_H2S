@@ -91,15 +91,7 @@ Production deployment should replace simulated telemetry with live feeds such as
 
 ## Deployment
 
-This is a single Node service that serves the frontend and API.
-
-Suggested deploy targets:
-
-- Render Web Service
-- Railway
-- Fly.io
-- Azure App Service
-- Google Cloud Run
+Deployed at: https://fifa-2026-h2s.onrender.com/
 
 Set the start command:
 
@@ -115,11 +107,3 @@ OPENAI_API_KEY=<optional>
 OPENAI_MODEL=gpt-5.2
 ```
 
-## Submission checklist
-
-- Public GitHub repository link
-- Complete project code
-- README explaining vertical, approach, logic, and assumptions
-- One branch only
-- Repository size below 10 MB
-- Tests runnable with `node --test tests/*.test.js`
