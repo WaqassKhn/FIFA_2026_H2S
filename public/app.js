@@ -782,6 +782,14 @@ function renderVenueHeader(venue) {
   
   const transitEl = document.querySelector("#stadiumTransit");
   if (transitEl) transitEl.textContent = venue.transitModes.slice(0, 2).join(", ");
+
+  const weatherEl = document.querySelector("#stadiumWeather");
+  if (weatherEl && state.telemetry && state.telemetry.externalWeather) {
+    const temp = Math.round(state.telemetry.externalWeather.tempF);
+    const code = state.telemetry.externalWeather.weatherCode;
+    const desc = weatherDesc(code);
+    weatherEl.textContent = `${temp}°F, ${desc}`;
+  }
 }
 
 // renderContextStrip removed
@@ -979,24 +987,20 @@ function renderRoute(venue, route, telemetry) {
 }
 
 function renderMap() {
-  replaceChildren(els.venueMap, state.venues.map((venue) => {
-    const pin = document.createElement("button");
-    pin.type = "button";
-    pin.className = `venue-pin${venue.id === state.selectedVenueId ? " active" : ""}`;
-    pin.style.left = `${venue.pin.x}%`;
-    pin.style.top = `${venue.pin.y}%`;
-    pin.setAttribute("aria-label", `${t("venueLabel")}: ${venue.city}`);
-    pin.title = venue.city;
-    pin.addEventListener("click", async () => {
-      state.selectedVenueId = venue.id;
-      els.venueSelect.value = venue.id;
-      await refreshTelemetry("filter");
-    });
-    const label = document.createElement("span");
-    label.textContent = venue.city;
-    pin.append(label);
-    return pin;
-  }));
+  const venue = state.venue;
+  if (!venue) return;
+
+  const iframe = document.createElement("iframe");
+  iframe.src = `https://maps.google.com/maps?q=${venue.coordinates.lat},${venue.coordinates.lng}&hl=en&z=15&output=embed`;
+  iframe.width = "100%";
+  iframe.height = "100%";
+  iframe.style.border = "0";
+  iframe.style.borderRadius = "12px";
+  iframe.setAttribute("allowfullscreen", "");
+  iframe.setAttribute("loading", "lazy");
+
+  els.venueMap.innerHTML = "";
+  els.venueMap.appendChild(iframe);
 }
 
 function renderMatchHistory(venue) {
