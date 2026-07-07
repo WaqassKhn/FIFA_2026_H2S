@@ -72,16 +72,41 @@
           <button class="tab-button" data-tab="assistant">GenAI Copilot</button>
         </nav>
 
-        <div class="workspace-title-bar">
-          <div class="title-left">
-            <h2 id="venueTitle">Operations dashboard</h2>
-            <p id="venueMeta">Loading venue data</p>
+        <div class="hero-split-grid">
+          <!-- Left side: Venue profile and map -->
+          <div class="venue-profile-panel">
+            <div class="venue-profile-header">
+              <h2 id="venueTitle">Operations dashboard</h2>
+              <p id="venueMeta">Loading venue data</p>
+            </div>
+            
+            <div class="venue-map-container">
+              <div class="venue-map" id="venueMap" aria-label="Map of 2026 host venues"></div>
+              <div class="stadium-directions-overlay">
+                <span id="mapCardCoords" class="coords-display">Lat: --, Lng: --</span>
+                <a href="#" target="_blank" class="primary-button directions-btn" id="mapDirectionsLink">
+                  Driving Directions 🚗
+                </a>
+              </div>
+            </div>
+            
+            <div class="stadium-info-section">
+              <div class="info-card">
+                <span class="info-label">Local Clock</span>
+                <div class="timezone-clock" id="timezoneClock">--:--:--</div>
+              </div>
+              <div class="info-card">
+                <span class="info-label">Capacity</span>
+                <strong id="stadiumCapacity">--</strong>
+              </div>
+              <div class="info-card">
+                <span class="info-label">Primary Transit</span>
+                <strong id="stadiumTransit">--</strong>
+              </div>
+            </div>
           </div>
-          <div class="timezone-clock" id="timezoneClock">--:--:--</div>
-        </div>
 
-        <div class="dashboard-grid" id="dashboardGrid">
-          <!-- COPILOT ASSISTANT PANEL -->
+          <!-- Right side: GenAI assistant panel -->
           <section class="tool-panel assistant-panel content-swap" id="assistantPanel" aria-labelledby="assistantTitle">
             <div class="panel-head">
               <div>
@@ -100,7 +125,9 @@
             </div>
             <div class="answer-box" id="answerBox" aria-live="polite"></div>
           </section>
+        </div>
 
+        <div class="dashboard-grid" id="dashboardGrid">
           <!-- PRIMARY CONCERN PANEL -->
           <section class="concern-panel tool-panel content-swap" aria-labelledby="concernTitle" id="concernPanel">
             <div class="panel-head">
@@ -164,27 +191,7 @@
             <div id="routePlan"></div>
           </section>
 
-          <!-- MAP PANEL -->
-          <section class="map-panel tool-panel content-swap" aria-labelledby="mapTitle" id="mapPanel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow" data-i18n="mapEyebrow">Host footprint</p>
-                <h3 id="mapTitle" data-i18n="mapTitle">Venue network</h3>
-              </div>
-            </div>
-            <div class="venue-map-container">
-              <div class="venue-map" id="venueMap" aria-label="Map of 2026 host venues"></div>
-              <!-- Floating Map Card Overlay -->
-              <div class="venue-map-card" id="venueMapCard">
-                <h4 id="mapCardTitle">Stadium Location</h4>
-                <p id="mapCardVenueName">--</p>
-                <p id="mapCardCoords" class="coords-display">Lat: --, Lng: --</p>
-                <a href="#" target="_blank" class="primary-button map-directions-btn" id="mapDirectionsLink">
-                  Get Driving Directions 🚗
-                </a>
-              </div>
-            </div>
-          </section>
+
 
           <!-- MATCH HISTORY PANEL -->
           <section class="tool-panel history-panel content-swap" aria-labelledby="historyTitle" id="historyPanel">

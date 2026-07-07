@@ -769,9 +769,15 @@ function populateControls() {
 }
 
 function renderVenueHeader(venue) {
-  els.venueMeta.textContent = `${venue.city}, ${venue.country} | ${t("capacity")} ${formatNumber(venue.capacity)} | ${venue.timezone}`;
-  els.venueTitle.textContent = venue.venueName;
+  els.venueMeta.textContent = `${venue.city}, ${venue.country} | ${venue.timezone}`;
+  els.venueTitle.textContent = venue.fifaName;
   els.phaseText.textContent = translatePhase(state.telemetry.phase);
+  
+  const capacityEl = document.querySelector("#stadiumCapacity");
+  if (capacityEl) capacityEl.textContent = formatNumber(venue.capacity);
+  
+  const transitEl = document.querySelector("#stadiumTransit");
+  if (transitEl) transitEl.textContent = venue.transitModes.slice(0, 2).join(", ");
 }
 
 // renderContextStrip removed
@@ -1339,7 +1345,7 @@ function initTabs() {
     });
   });
 
-  const allIds = ["#concernPanel", "#decisionsPanel", "#matchFocusPanel", "#telemetryPanel", "#routePanel", "#mapPanel", "#historyPanel", "#assistantPanel"];
+  const allIds = ["#concernPanel", "#decisionsPanel", "#matchFocusPanel", "#telemetryPanel", "#routePanel", "#historyPanel", "#assistantPanel"];
   
   allIds.forEach((id) => {
     const el = document.querySelector(id);
@@ -1380,12 +1386,12 @@ function setActiveTab(tabName, scrollTo = true) {
   } else if (tabName === "decisions") {
     focusedIds = ["#decisionsPanel"];
   } else if (tabName === "route") {
-    focusedIds = ["#routePanel", "#mapPanel"];
+    focusedIds = ["#routePanel"];
   } else if (tabName === "assistant") {
     focusedIds = ["#assistantPanel"];
   }
 
-  const allIds = ["#concernPanel", "#decisionsPanel", "#matchFocusPanel", "#telemetryPanel", "#routePanel", "#mapPanel", "#historyPanel", "#assistantPanel"];
+  const allIds = ["#concernPanel", "#decisionsPanel", "#matchFocusPanel", "#telemetryPanel", "#routePanel", "#historyPanel", "#assistantPanel"];
   allIds.forEach((id) => {
     const el = document.querySelector(id);
     if (el) {

@@ -1694,7 +1694,6 @@ select.transparent-select:focus {
 
 /* Assistant centerpiece panel styling */
 #assistantPanel {
-  grid-column: 1 / -1; /* Make it full-width at the top! */
   background: linear-gradient(135deg, rgba(22, 31, 54, 0.85), rgba(14, 20, 36, 0.95)) !important;
   border: 1px solid rgba(59, 130, 246, 0.3) !important;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55), 0 0 20px rgba(59, 130, 246, 0.12) !important;
@@ -1705,6 +1704,140 @@ select.transparent-select:focus {
 
 #assistantPanel .panel-head {
   cursor: default !important;
+}
+
+/* Hero Split Grid Layout */
+.hero-split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 24px;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+.venue-profile-panel {
+  background: rgba(14, 20, 36, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.venue-profile-header h2 {
+  margin: 0 0 4px 0;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.venue-profile-header p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.venue-profile-panel .venue-map-container {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.venue-profile-panel .venue-map {
+  width: 100%;
+  height: 100%;
+  background-color: #0b0f19;
+}
+
+.stadium-directions-overlay {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  background: rgba(14, 20, 36, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  z-index: 10;
+}
+
+.stadium-directions-overlay span {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--sky);
+}
+
+.stadium-directions-overlay .directions-btn {
+  font-size: 0.75rem;
+  padding: 6px 12px;
+  min-height: 28px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stadium-info-section {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.stadium-info-section .info-card {
+  background: rgba(22, 31, 54, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+}
+
+.stadium-info-section .info-label {
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.stadium-info-section .timezone-clock {
+  font-family: monospace;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--sky);
+  background: none;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+}
+
+.stadium-info-section strong {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+@media (max-width: 992px) {
+  .hero-split-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Styled Markdown Elements inside Answer Box */
