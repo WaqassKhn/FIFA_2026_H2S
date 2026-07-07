@@ -680,12 +680,30 @@ function bindEvents() {
       } else if (id === "navVenueMetrics") {
         setActiveTab("signals");
       } else if (id === "navStaffingHub") {
+        // Actively switch persona to venue-staff, refresh queries and run assistant
+        els.roleSelect.value = "venue-staff";
+        state.selectedRole = "venue-staff";
+        els.questionInput.value = buildAutoQuery();
+        renderAll(state.venue, "filter");
         setActiveTab("decisions");
+        askAssistant();
       } else if (id === "navEmergencyEscalation") {
         setActiveTab("assistant");
         document.querySelector("#concernPanel")?.classList.add("expanded", "focused");
       }
     });
+  });
+
+  // Minimize app-header when scrolling down for better dashboard visibility
+  window.addEventListener("scroll", () => {
+    const header = document.querySelector(".app-header");
+    if (header) {
+      if (window.scrollY > 40) {
+        header.classList.add("minimized");
+      } else {
+        header.classList.remove("minimized");
+      }
+    }
   });
 
   els.askButton.addEventListener("click", askAssistant);

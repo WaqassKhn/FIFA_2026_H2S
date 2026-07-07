@@ -114,6 +114,28 @@ textarea:focus-visible {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-header.minimized {
+  padding: 10px 26px;
+  gap: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55);
+}
+
+.app-header.minimized .hero-banner {
+  display: none !important;
+}
+
+.app-header.minimized .header-top-bar {
+  padding-bottom: 8px;
+}
+
+.wc-logo-mini {
+  height: 28px;
+  width: auto;
+  border-radius: 4px;
+  display: block;
 }
 
 .header-top-bar {
@@ -1860,21 +1882,24 @@ select.transparent-select:focus {
 /* Styled Markdown Elements inside Answer Box */
 #answerBox {
   font-size: 0.94rem;
-  line-height: 1.65;
-  color: var(--text);
+  line-height: 1.7;
+  color: #e2e8f0;
   margin-top: 18px;
-  padding: 18px;
-  border-radius: 10px;
-  background: rgba(14, 20, 36, 0.55);
-  border: 1px solid var(--line);
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(10, 15, 28, 0.45) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 #answerBox h4 {
-  color: var(--sky);
-  font-size: 1.05rem;
+  color: var(--teal) !important; /* Glowing turquoise headers */
+  font-size: 1.1rem;
   font-weight: 800;
-  margin: 18px 0 10px;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  margin: 20px 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid rgba(0, 242, 254, 0.2);
   padding-bottom: 4px;
 }
 
@@ -1883,17 +1908,18 @@ select.transparent-select:focus {
 }
 
 #answerBox p {
-  margin: 0 0 12px;
+  margin: 0 0 14px;
 }
 
 #answerBox ul {
-  margin: 0 0 16px;
-  padding-left: 20px;
-  list-style-type: square;
+  margin: 0 0 18px;
+  padding-left: 22px;
+  list-style-type: disc;
 }
 
 #answerBox li {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  line-height: 1.6;
 }
 
 #answerBox strong {
@@ -1902,11 +1928,11 @@ select.transparent-select:focus {
 }
 
 #answerBox blockquote {
-  margin: 14px 0;
-  padding: 12px 16px;
+  margin: 16px 0;
+  padding: 14px 20px;
   border-left: 4px solid var(--teal);
-  background: rgba(16, 185, 129, 0.05);
-  color: #34d399;
+  background: rgba(0, 242, 254, 0.06);
+  color: #00f2fe;
   border-radius: 0 8px 8px 0;
-  font-weight: 500;
+  font-weight: 600;
 }
