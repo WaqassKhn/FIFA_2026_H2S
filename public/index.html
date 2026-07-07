@@ -8,72 +8,64 @@
   </head>
   <body>
     <div class="app-shell">
-      <aside class="control-rail" aria-label="Operations controls">
-        <div class="brand-block">
-          <p class="eyebrow" data-i18n="brandEyebrow">FIFA World Cup 2026</p>
-          <h1 data-i18n="appTitle">Matchday Stadium Copilot</h1>
-          <p class="brand-copy" data-i18n="brandCopy">Live command support for fans, staff, volunteers, and organizers.</p>
-        </div>
-
-        <div class="filter-stack">
-          <label>
-            <span data-i18n="venueLabel">Venue</span>
-            <select id="venueSelect"></select>
-          </label>
-
-          <label>
-            <span data-i18n="scenarioLabel">Scenario</span>
-            <select id="scenarioSelect"></select>
-          </label>
-
-          <label>
-            <span data-i18n="roleLabel">Persona</span>
-            <select id="roleSelect"></select>
-          </label>
-
-          <label>
-            <span data-i18n="languageLabel">Language</span>
-            <select id="languageSelect"></select>
-          </label>
-
-          <label>
-            <span data-i18n="destinationLabel">Destination</span>
-            <select id="destinationSelect"></select>
-          </label>
-
-          <label>
-            <span data-i18n="mobilityLabel">Access need</span>
-            <select id="mobilitySelect"></select>
-          </label>
-        </div>
-
-        <button class="primary-button" id="refreshButton" type="button" data-i18n="refreshButton">Refresh telemetry</button>
-        <p class="source-note" id="sourceNote"></p>
-      </aside>
-
       <main class="workspace">
-        <header class="topbar">
-          <div>
-            <p class="eyebrow" id="venueMeta">Loading venue data</p>
-            <h2 id="venueTitle">Operations dashboard</h2>
+        <header class="app-header">
+          <div class="header-top">
+            <div class="brand-block">
+              <span class="eyebrow" data-i18n="brandEyebrow">FIFA World Cup 2026</span>
+              <h1 data-i18n="appTitle">Matchday Stadium Copilot</h1>
+            </div>
+            <div class="header-actions">
+              <p class="source-note" id="sourceNote"></p>
+              <div class="mode-pill" id="assistantMode">Local fallback ready</div>
+              <button class="primary-button" id="refreshButton" type="button" data-i18n="refreshButton">Refresh telemetry</button>
+            </div>
           </div>
-          <div class="mode-pill" id="assistantMode">Local fallback ready</div>
+          
+          <div class="filter-row">
+            <div class="filter-group">
+              <label for="venueSelect" data-i18n="venueLabel">Venue</label>
+              <select id="venueSelect" class="transparent-select"></select>
+            </div>
+            <div class="filter-group">
+              <label for="scenarioSelect" data-i18n="scenarioLabel">Scenario</label>
+              <select id="scenarioSelect" class="transparent-select"></select>
+            </div>
+            <div class="filter-group">
+              <label for="roleSelect" data-i18n="roleLabel">Persona</label>
+              <select id="roleSelect" class="transparent-select"></select>
+            </div>
+            <div class="filter-group">
+              <label for="languageSelect" data-i18n="languageLabel">Language</label>
+              <select id="languageSelect" class="transparent-select"></select>
+            </div>
+            <div class="filter-group">
+              <label for="destinationSelect" data-i18n="destinationLabel">Destination</label>
+              <select id="destinationSelect" class="transparent-select"></select>
+            </div>
+            <div class="filter-group">
+              <label for="mobilitySelect" data-i18n="mobilityLabel">Access need</label>
+              <select id="mobilitySelect" class="transparent-select"></select>
+            </div>
+          </div>
         </header>
 
-        <section class="context-strip" id="contextStrip" aria-label="Selected matchday context"></section>
+        <nav class="dashboard-tabs" aria-label="Dashboard sections">
+          <button class="tab-button active" data-tab="overview">Command Center</button>
+          <button class="tab-button" data-tab="match">Match Focus</button>
+          <button class="tab-button" data-tab="signals">Signals & Telemetry</button>
+          <button class="tab-button" data-tab="decisions">Recommended Actions</button>
+          <button class="tab-button" data-tab="route">Route & Map</button>
+          <button class="tab-button" data-tab="assistant">GenAI Copilot</button>
+        </nav>
 
-        <section class="focus-grid" aria-label="Match focus">
-          <section class="match-focus-panel tool-panel content-swap" aria-labelledby="matchFocusTitle" id="matchFocusPanel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow" data-i18n="matchFocusEyebrow">Match focus</p>
-                <h3 id="matchFocusTitle" data-i18n="matchFocusTitle">Live match simulation</h3>
-              </div>
-              <span class="phase-chip" id="matchStatus">--</span>
-            </div>
-            <div id="matchFocus"></div>
-          </section>
+        <div class="workspace-title-bar">
+          <h2 id="venueTitle">Operations dashboard</h2>
+          <p id="venueMeta">Loading venue data</p>
+        </div>
 
+        <div class="dashboard-grid" id="dashboardGrid">
+          <!-- PRIMARY CONCERN PANEL -->
           <section class="concern-panel tool-panel content-swap" aria-labelledby="concernTitle" id="concernPanel">
             <div class="panel-head">
               <div>
@@ -89,10 +81,32 @@
             <div class="concern-summary" id="concernSummary"></div>
             <div class="driver-list" id="driverList"></div>
           </section>
-        </section>
 
-        <section class="details-grid" aria-label="Operations details">
-          <section class="tool-panel telemetry-panel content-swap" aria-labelledby="telemetryTitle">
+          <!-- RECOMMENDED ACTIONS PANEL -->
+          <section class="tool-panel decisions-panel content-swap" aria-labelledby="decisionsTitle" id="decisionsPanel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow" data-i18n="decisionEyebrow">Decision support</p>
+                <h3 id="decisionsTitle" data-i18n="decisionTitle">Recommended actions</h3>
+              </div>
+            </div>
+            <div class="decision-list" id="decisionList"></div>
+          </section>
+
+          <!-- MATCH FOCUS PANEL -->
+          <section class="match-focus-panel tool-panel content-swap" aria-labelledby="matchFocusTitle" id="matchFocusPanel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow" data-i18n="matchFocusEyebrow">Match focus</p>
+                <h3 id="matchFocusTitle" data-i18n="matchFocusTitle">Live match simulation</h3>
+              </div>
+              <span class="phase-chip" id="matchStatus">--</span>
+            </div>
+            <div id="matchFocus"></div>
+          </section>
+
+          <!-- TELEMETRY PANEL -->
+          <section class="tool-panel telemetry-panel content-swap" aria-labelledby="telemetryTitle" id="telemetryPanel">
             <div class="panel-head">
               <div>
                 <p class="eyebrow" data-i18n="signalsEyebrow">Signals</p>
@@ -103,17 +117,8 @@
             <div class="metric-grid" id="metricGrid"></div>
           </section>
 
-          <section class="tool-panel decisions-panel content-swap" aria-labelledby="decisionsTitle">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow" data-i18n="decisionEyebrow">Decision support</p>
-                <h3 id="decisionsTitle" data-i18n="decisionTitle">Recommended actions</h3>
-              </div>
-            </div>
-            <div class="decision-list" id="decisionList"></div>
-          </section>
-
-          <section class="tool-panel route-panel content-swap" aria-labelledby="routeTitle">
+          <!-- ROUTE PANEL -->
+          <section class="tool-panel route-panel content-swap" aria-labelledby="routeTitle" id="routePanel">
             <div class="panel-head">
               <div>
                 <p class="eyebrow" data-i18n="navigationEyebrow">Navigation</p>
@@ -123,7 +128,8 @@
             <div id="routePlan"></div>
           </section>
 
-          <section class="map-panel tool-panel content-swap" aria-labelledby="mapTitle">
+          <!-- MAP PANEL -->
+          <section class="map-panel tool-panel content-swap" aria-labelledby="mapTitle" id="mapPanel">
             <div class="panel-head">
               <div>
                 <p class="eyebrow" data-i18n="mapEyebrow">Host footprint</p>
@@ -133,7 +139,8 @@
             <div class="venue-map" id="venueMap" aria-label="Map of 2026 host venues"></div>
           </section>
 
-          <section class="tool-panel history-panel content-swap" aria-labelledby="historyTitle">
+          <!-- MATCH HISTORY PANEL -->
+          <section class="tool-panel history-panel content-swap" aria-labelledby="historyTitle" id="historyPanel">
             <div class="panel-head">
               <div>
                 <p class="eyebrow" data-i18n="historyEyebrow">Match history</p>
@@ -142,10 +149,9 @@
             </div>
             <div id="matchHistory"></div>
           </section>
-        </section>
 
-        <section class="assistant-section">
-          <section class="tool-panel assistant-panel content-swap" aria-labelledby="assistantTitle">
+          <!-- COPILOT ASSISTANT PANEL -->
+          <section class="tool-panel assistant-panel content-swap" aria-labelledby="assistantTitle" id="assistantPanel">
             <div class="panel-head">
               <div>
                 <p class="eyebrow" data-i18n="assistantEyebrow">GenAI assistant</p>
@@ -163,7 +169,10 @@
             </div>
             <div class="answer-box" id="answerBox" aria-live="polite"></div>
           </section>
-        </section>
+
+          <!-- SECTION DIVIDER FOR COLLAPSED PANELS -->
+          <div class="section-divider" id="additionalSectionsHeader" style="order: 2;">Additional Sections</div>
+        </div>
       </main>
     </div>
     <script type="module" src="/app.js"></script>

@@ -29,7 +29,6 @@ const els = {
   venueMeta: document.querySelector("#venueMeta"),
   venueTitle: document.querySelector("#venueTitle"),
   assistantMode: document.querySelector("#assistantMode"),
-  contextStrip: document.querySelector("#contextStrip"),
   matchStatus: document.querySelector("#matchStatus"),
   matchFocus: document.querySelector("#matchFocus"),
   concernPanel: document.querySelector("#concernPanel"),
@@ -506,6 +505,7 @@ async function boot() {
   els.questionInput.value = t("defaultQuestion");
   applyLanguage();
   bindEvents();
+  initTabs();
   await refreshTelemetry("initial");
   setInterval(() => refreshTelemetry("background"), 20000);
 }
@@ -517,6 +517,9 @@ function bindEvents() {
   });
   els.scenarioSelect.addEventListener("change", async () => {
     state.selectedScenarioId = els.scenarioSelect.value;
+    if (state.selectedScenarioId !== "baseline") {
+      setActiveTab("decisions");
+    }
     await refreshTelemetry("filter");
   });
   els.roleSelect.addEventListener("change", () => {
@@ -531,10 +534,12 @@ function bindEvents() {
   });
   els.destinationSelect.addEventListener("change", async () => {
     state.selectedDestination = els.destinationSelect.value;
+    setActiveTab("route");
     await refreshTelemetry("filter");
   });
   els.mobilitySelect.addEventListener("change", async () => {
     state.selectedMobility = els.mobilitySelect.value;
+    setActiveTab("route");
     await refreshTelemetry("filter");
   });
   els.refreshButton.addEventListener("click", () => refreshTelemetry("manual"));
@@ -546,24 +551,33 @@ function bindEvents() {
 }
 
 async function refreshTelemetry(reason = "manual") {
-  const params = new URLSearchParams({
-    venueId: state.selectedVenueId,
-    scenarioId: state.selectedScenarioId,
-    destination: state.selectedDestination,
-    mobilityNeed: state.selectedMobility
-  });
-  const data = await fetchJson(`/api/telemetry?${params}`);
-  state.telemetry = data.telemetry;
-  state.route = data.route;
-  state.cards = data.cards;
-  state.venue = data.venue;
-  renderAll(data.venue, reason);
+  const needsButtonLoader = reason === "manual" || reason === "filter" || reason === "initial";
+  if (needsButtonLoader && els.refreshButton) {
+    els.refreshButton.disabled = true;
+  }
+  try {
+    const params = new URLSearchParams({
+      venueId: state.selectedVenueId,
+      scenarioId: state.selectedScenarioId,
+      destination: state.selectedDestination,
+      mobilityNeed: state.selectedMobility
+    });
+    const data = await fetchJson(`/api/telemetry?${params}`);
+    state.telemetry = data.telemetry;
+    state.route = data.route;
+    state.cards = data.cards;
+    state.venue = data.venue;
+    renderAll(data.venue, reason);
+  } finally {
+    if (needsButtonLoader && els.refreshButton) {
+      els.refreshButton.disabled = false;
+    }
+  }
 }
 
 function renderAll(venue, reason = "manual") {
   if (!venue || !state.telemetry) return;
   renderVenueHeader(venue);
-  renderContextStrip(venue);
   renderMatchFocus(venue);
   renderConcern(state.telemetry);
   renderMetrics(state.telemetry);
@@ -609,29 +623,7 @@ function renderVenueHeader(venue) {
   els.phaseText.textContent = translatePhase(state.telemetry.phase);
 }
 
-function renderContextStrip(venue) {
-  const chips = [
-    { label: t("venueLabel"), value: venue.fifaName },
-    { label: t("scenario"), value: scenarioLabel(state.selectedScenarioId) },
-    { label: t("persona"), value: roleLabels[state.selectedRole]?.[state.selectedLanguage] || state.selectedRole },
-    { label: t("language"), value: languageLabels[state.selectedLanguage]?.[state.selectedLanguage] || state.selectedLanguage },
-    { label: t("destination"), value: optionLabel(destinationOptions, state.selectedDestination) },
-    { label: t("accessNeed"), value: optionLabel(mobilityOptions, state.selectedMobility) }
-  ];
-
-  const nodes = chips.map((chip) => {
-    const node = document.createElement("div");
-    node.className = "context-chip";
-    const label = document.createElement("span");
-    label.textContent = chip.label;
-    const value = document.createElement("strong");
-    value.textContent = chip.value;
-    node.append(label, value);
-    return node;
-  });
-  replaceChildren(els.contextStrip, nodes);
-  pulse(els.contextStrip);
-}
+// renderContextStrip removed
 
 function renderMatchFocus(venue) {
   const match = matchForVenue(venue.id);
@@ -871,6 +863,7 @@ function renderQuickPrompts() {
 }
 
 async function askAssistant() {
+  setActiveTab("assistant");
   els.askButton.disabled = true;
   els.assistantMode.textContent = t("generatingPlan");
   els.answerBox.textContent = t("working");
@@ -1115,4 +1108,78 @@ function t(key, values = {}) {
   const dictionary = dictionaries[state.selectedLanguage] || dictionaries.en;
   const template = dictionary[key] || dictionaries.en[key] || key;
   return Object.entries(values).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, value), template);
+}
+
+function initTabs() {
+  const tabs = document.querySelectorAll(".tab-button");
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      setActiveTab(tab.dataset.tab);
+    });
+  });
+
+  // Switch tabs on collapsed panel clicks
+  const panelHooks = [
+    { id: "#matchFocusPanel", tab: "match" },
+    { id: "#concernPanel", tab: "signals" },
+    { id: "#telemetryPanel", tab: "signals" },
+    { id: "#decisionsPanel", tab: "decisions" },
+    { id: "#routePanel", tab: "route" },
+    { id: "#mapPanel", tab: "route" },
+    { id: "#historyPanel", tab: "match" },
+    { id: "#assistantPanel", tab: "assistant" }
+  ];
+
+  panelHooks.forEach((p) => {
+    const el = document.querySelector(p.id);
+    if (el) {
+      el.addEventListener("click", () => {
+        if (!el.classList.contains("focused")) {
+          setActiveTab(p.tab);
+          document.querySelector(".workspace-title-bar")?.scrollIntoView({ behavior: "smooth" });
+        }
+      });
+    }
+  });
+
+  setActiveTab("overview");
+}
+
+function setActiveTab(tabName) {
+  state.activeTab = tabName;
+
+  document.querySelectorAll(".tab-button").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.tab === tabName);
+  });
+
+  let focusedIds = [];
+  if (tabName === "overview") {
+    focusedIds = ["#concernPanel", "#decisionsPanel", "#matchFocusPanel"];
+  } else if (tabName === "match") {
+    focusedIds = ["#matchFocusPanel", "#historyPanel"];
+  } else if (tabName === "signals") {
+    focusedIds = ["#telemetryPanel", "#concernPanel"];
+  } else if (tabName === "decisions") {
+    focusedIds = ["#decisionsPanel"];
+  } else if (tabName === "route") {
+    focusedIds = ["#routePanel", "#mapPanel"];
+  } else if (tabName === "assistant") {
+    focusedIds = ["#assistantPanel"];
+  }
+
+  const allIds = ["#concernPanel", "#decisionsPanel", "#matchFocusPanel", "#telemetryPanel", "#routePanel", "#mapPanel", "#historyPanel", "#assistantPanel"];
+  allIds.forEach((id) => {
+    const el = document.querySelector(id);
+    if (el) {
+      const isFocused = focusedIds.includes(id);
+      el.classList.toggle("focused", isFocused);
+      el.style.order = isFocused ? "1" : "3";
+    }
+  });
+
+  const divider = document.querySelector("#additionalSectionsHeader");
+  if (divider) {
+    const hasSecondary = allIds.some(id => !focusedIds.includes(id) && document.querySelector(id));
+    divider.style.display = hasSecondary ? "block" : "none";
+  }
 }
