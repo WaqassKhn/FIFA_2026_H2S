@@ -73,7 +73,15 @@ async function handleApi(request, response, url) {
     const venueId = url.searchParams.get("venueId") || VENUES[0].id;
     const scenarioId = url.searchParams.get("scenarioId") || "baseline";
     const venue = findVenue(venueId);
-    const telemetry = buildTelemetry(venue.id, scenarioId);
+
+    let externalWeather = null;
+    try {
+      externalWeather = await fetchRealTimeWeather(venue.coordinates.lat, venue.coordinates.lng);
+    } catch (error) {
+      console.warn(`[Weather API Warning] Failed to fetch weather for lat=${venue.coordinates.lat}, lng=${venue.coordinates.lng}: ${error.message}`);
+    }
+
+    const telemetry = buildTelemetry(venue.id, scenarioId, new Date(), externalWeather);
     sendJson(response, 200, {
       venue: buildVenueSummary(venue),
       telemetry,
@@ -169,4 +177,23 @@ function loadDotEnv(filePath) {
       process.env[key] = value;
     }
   }
+}
+
+async function fetchRealTimeWeather(lat, lng) {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&temperature_unit=fahrenheit`;
+  const response = await fetch(url, { signal: AbortSignal.timeout(4000) });
+  if (!response.ok) {
+    throw new Error(`Open-Meteo returned status ${response.status}`);
+  }
+  const data = await response.json();
+  const current = data?.current;
+  if (!current) throw new Error("No current weather data found in Open-Meteo payload");
+
+  return {
+    tempF: Math.round(current.temperature_2m),
+    apparentTempF: Math.round(current.apparent_temperature),
+    humidity: Math.round(current.relative_humidity_2m),
+    windSpeedMph: Math.round(current.wind_speed_10m),
+    weatherCode: current.weather_code
+  };
 }

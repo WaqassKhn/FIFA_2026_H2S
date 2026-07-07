@@ -138,7 +138,7 @@ const FALLBACK_LABELS = {
 export async function answerQuestion(payload = {}, options = {}) {
   const venue = findVenue(payload.venueId);
   const scenario = findScenario(payload.scenarioId || "baseline");
-  const telemetry = buildTelemetry(venue.id, scenario.id, payload.now ? new Date(payload.now) : new Date());
+  const telemetry = buildTelemetry(venue.id, scenario.id, payload.now ? new Date(payload.now) : new Date(), payload.externalWeather);
   const language = resolveLanguage(payload.language);
   const role = resolveRole(payload.role);
   const question = normalizeQuestion(payload.question);

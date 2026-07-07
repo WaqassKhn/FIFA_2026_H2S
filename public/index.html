@@ -11,10 +11,21 @@
       <main class="workspace">
         <header class="app-header">
           <div class="header-top">
-            <div class="brand-block">
-              <span class="eyebrow" data-i18n="brandEyebrow">FIFA World Cup 2026</span>
-              <h1 data-i18n="appTitle">Matchday Stadium Copilot</h1>
+            <div class="logo-area">
+              <div class="wc-badge">26</div>
+              <div class="brand-block">
+                <span class="eyebrow" data-i18n="brandEyebrow">FIFA World Cup 2026</span>
+                <h1 data-i18n="appTitle">Matchday Stadium Copilot</h1>
+              </div>
             </div>
+            
+            <nav class="main-nav" aria-label="Main Navigation">
+              <a href="#" class="nav-link active">Live Control</a>
+              <a href="#" class="nav-link">Venue Metrics</a>
+              <a href="#" class="nav-link">Staffing Hub</a>
+              <a href="#" class="nav-link">Emergency Escalation</a>
+            </nav>
+
             <div class="header-actions">
               <p class="source-note" id="sourceNote"></p>
               <div class="mode-pill" id="assistantMode">Local fallback ready</div>
@@ -60,8 +71,11 @@
         </nav>
 
         <div class="workspace-title-bar">
-          <h2 id="venueTitle">Operations dashboard</h2>
-          <p id="venueMeta">Loading venue data</p>
+          <div class="title-left">
+            <h2 id="venueTitle">Operations dashboard</h2>
+            <p id="venueMeta">Loading venue data</p>
+          </div>
+          <div class="timezone-clock" id="timezoneClock">--:--:--</div>
         </div>
 
         <div class="dashboard-grid" id="dashboardGrid">
@@ -136,7 +150,18 @@
                 <h3 id="mapTitle" data-i18n="mapTitle">Venue network</h3>
               </div>
             </div>
-            <div class="venue-map" id="venueMap" aria-label="Map of 2026 host venues"></div>
+            <div class="venue-map-container">
+              <div class="venue-map" id="venueMap" aria-label="Map of 2026 host venues"></div>
+              <!-- Floating Map Card Overlay -->
+              <div class="venue-map-card" id="venueMapCard">
+                <h4 id="mapCardTitle">Stadium Location</h4>
+                <p id="mapCardVenueName">--</p>
+                <p id="mapCardCoords" class="coords-display">Lat: --, Lng: --</p>
+                <a href="#" target="_blank" class="primary-button map-directions-btn" id="mapDirectionsLink">
+                  Get Driving Directions 🚗
+                </a>
+              </div>
+            </div>
           </section>
 
           <!-- MATCH HISTORY PANEL -->
@@ -151,7 +176,7 @@
           </section>
 
           <!-- COPILOT ASSISTANT PANEL -->
-          <section class="tool-panel assistant-panel content-swap" aria-labelledby="assistantTitle" id="assistantPanel">
+          <section class="tool-panel assistant-panel content-swap" aria-labelledby="assistantPanel">
             <div class="panel-head">
               <div>
                 <p class="eyebrow" data-i18n="assistantEyebrow">GenAI assistant</p>

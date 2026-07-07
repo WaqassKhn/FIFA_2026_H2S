@@ -21,7 +21,7 @@ export function getMatchPhase(now = new Date()) {
   return "overnight reset";
 }
 
-export function buildTelemetry(venueId, scenarioId = "baseline", now = new Date()) {
+export function buildTelemetry(venueId, scenarioId = "baseline", now = new Date(), externalWeather = null) {
   const venue = findVenue(venueId);
   const scenario = findScenario(scenarioId);
   const minute = now.getMinutes();
@@ -34,10 +34,28 @@ export function buildTelemetry(venueId, scenarioId = "baseline", now = new Date(
   const queueMinutes = Math.round(clamp(8 + timeWave * 14 + capacityFactor * 7 + phaseBoost + modifiers.queue, 2, 80));
   const crowdDensity = Math.round(clamp(42 + timeWave * 22 + capacityFactor * 11 + phaseBoost + modifiers.density, 12, 100));
   const transitLoad = Math.round(clamp(38 + timeWave * 18 + capacityFactor * 12 + modifiers.transit + (phase === "egress and transit" ? 18 : 0), 15, 100));
-  const heatIndexF = Math.round(clamp(74 + capacityFactor * 5 + modifiers.heat + (venue.country === "Mexico" ? 4 : 0), 45, 112));
   const accessibleDemand = Math.round(clamp(28 + capacityFactor * 9 + timeWave * 10 + modifiers.accessibility, 8, 100));
   const wasteLoad = Math.round(clamp(34 + timeWave * 14 + capacityFactor * 9 + modifiers.waste + (phase === "ingress peak" ? 8 : 0), 8, 100));
-  const weatherRisk = Math.round(clamp(Math.max(0, modifiers.heat) * 1.6 + (scenario.id === "weather-hold" ? 45 : 0), 0, 100));
+
+  let heatIndexF;
+  let weatherRisk;
+
+  if (externalWeather) {
+    heatIndexF = Math.round(clamp(externalWeather.apparentTempF + modifiers.heat, 45, 112));
+    const code = externalWeather.weatherCode;
+    let baseWeatherRisk = 0;
+    if (code >= 95) baseWeatherRisk = 85;
+    else if (code >= 80 && code <= 82) baseWeatherRisk = 60;
+    else if (code >= 71 && code <= 77) baseWeatherRisk = 50;
+    else if (code >= 61 && code <= 67) baseWeatherRisk = 40;
+    else if (code >= 51 && code <= 57) baseWeatherRisk = 15;
+    else if (code >= 45 && code <= 48) baseWeatherRisk = 20;
+    weatherRisk = Math.round(clamp(baseWeatherRisk + (scenario.id === "weather-hold" ? 45 : 0), 0, 100));
+  } else {
+    heatIndexF = Math.round(clamp(74 + capacityFactor * 5 + modifiers.heat + (venue.country === "Mexico" ? 4 : 0), 45, 112));
+    weatherRisk = Math.round(clamp(Math.max(0, modifiers.heat) * 1.6 + (scenario.id === "weather-hold" ? 45 : 0), 0, 100));
+  }
+
   const incidentCount = Math.round(clamp(modifiers.incidents + (queueMinutes > 35 ? 1 : 0) + (heatIndexF > 94 ? 1 : 0), 0, 8));
 
   const telemetry = {
@@ -55,7 +73,8 @@ export function buildTelemetry(venueId, scenarioId = "baseline", now = new Date(
     weatherRisk,
     incidentCount,
     openGates: recommendOpenGates(venue, queueMinutes, crowdDensity),
-    staffRedeploy: recommendStaffRedeploy(venue, crowdDensity, accessibleDemand, transitLoad)
+    staffRedeploy: recommendStaffRedeploy(venue, crowdDensity, accessibleDemand, transitLoad),
+    externalWeather
   };
 
   return {

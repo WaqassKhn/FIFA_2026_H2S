@@ -506,6 +506,10 @@ async function boot() {
   applyLanguage();
   bindEvents();
   initTabs();
+  
+  const initialVenue = state.venues.find(v => v.id === state.selectedVenueId);
+  if (initialVenue) startVenueClock(initialVenue.timezone);
+
   await refreshTelemetry("initial");
   setInterval(() => refreshTelemetry("background"), 20000);
 }
@@ -513,7 +517,10 @@ async function boot() {
 function bindEvents() {
   els.venueSelect.addEventListener("change", async () => {
     state.selectedVenueId = els.venueSelect.value;
+    const v = state.venues.find(item => item.id === state.selectedVenueId);
+    if (v) startVenueClock(v.timezone);
     await refreshTelemetry("filter");
+    if (state.assistantQueried) askAssistant();
   });
   els.scenarioSelect.addEventListener("change", async () => {
     state.selectedScenarioId = els.scenarioSelect.value;
@@ -521,30 +528,36 @@ function bindEvents() {
       setActiveTab("decisions");
     }
     await refreshTelemetry("filter");
+    if (state.assistantQueried) askAssistant();
   });
   els.roleSelect.addEventListener("change", () => {
     state.selectedRole = els.roleSelect.value;
     renderAll(state.venue, "filter");
+    if (state.assistantQueried) askAssistant();
   });
   els.languageSelect.addEventListener("change", () => {
     state.selectedLanguage = els.languageSelect.value;
     applyLanguage();
     populateControls();
     renderAll(state.venue, "language");
+    if (state.assistantQueried) askAssistant();
   });
   els.destinationSelect.addEventListener("change", async () => {
     state.selectedDestination = els.destinationSelect.value;
     setActiveTab("route");
     await refreshTelemetry("filter");
+    if (state.assistantQueried) askAssistant();
   });
   els.mobilitySelect.addEventListener("change", async () => {
     state.selectedMobility = els.mobilitySelect.value;
     setActiveTab("route");
     await refreshTelemetry("filter");
+    if (state.assistantQueried) askAssistant();
   });
   els.refreshButton.addEventListener("click", () => refreshTelemetry("manual"));
   els.askButton.addEventListener("click", askAssistant);
   els.clearButton.addEventListener("click", () => {
+    state.assistantQueried = false;
     els.answerBox.textContent = "";
     pulse(els.answerBox);
   });
@@ -584,6 +597,7 @@ function renderAll(venue, reason = "manual") {
   renderDecisions(state.cards, venue, state.telemetry);
   renderRoute(venue, state.route, state.telemetry);
   renderMap();
+  updateMapCard(venue);
   renderMatchHistory(venue);
   renderQuickPrompts();
 
@@ -708,11 +722,17 @@ function renderConcern(telemetry) {
 }
 
 function renderMetrics(telemetry) {
+  let weatherText = t("heatIndexNote");
+  if (telemetry.externalWeather) {
+    const desc = weatherDesc(telemetry.externalWeather.weatherCode);
+    weatherText = `${desc} | Live: ${telemetry.externalWeather.tempF}°F, ${telemetry.externalWeather.humidity}% hum, ${telemetry.externalWeather.windSpeedMph}mph wind`;
+  }
+  
   const metrics = [
     { label: t("gateQueue"), value: `${telemetry.queueMinutes} min`, note: t("gateQueueNote") },
     { label: t("crowdDensity"), value: `${telemetry.crowdDensity}%`, note: t("crowdDensityNote") },
     { label: t("transitLoad"), value: `${telemetry.transitLoad}%`, note: t("transitLoadNote") },
-    { label: t("heatIndex"), value: `${telemetry.heatIndexF} F`, note: t("heatIndexNote") },
+    { label: t("heatIndex"), value: `${telemetry.heatIndexF}°F`, note: weatherText },
     { label: t("accessDemand"), value: `${telemetry.accessibleDemand}%`, note: t("accessDemandNote") },
     { label: t("wasteLoad"), value: `${telemetry.wasteLoad}%`, note: t("wasteLoadNote") }
   ];
@@ -863,6 +883,7 @@ function renderQuickPrompts() {
 }
 
 async function askAssistant() {
+  state.assistantQueried = true;
   setActiveTab("assistant");
   els.askButton.disabled = true;
   els.assistantMode.textContent = t("generatingPlan");
@@ -879,7 +900,8 @@ async function askAssistant() {
         language: state.selectedLanguage,
         destination: state.selectedDestination,
         mobilityNeed: state.selectedMobility,
-        question: els.questionInput.value
+        question: els.questionInput.value,
+        externalWeather: state.telemetry?.externalWeather
       })
     });
     state.telemetry = result.telemetry;
@@ -1108,6 +1130,54 @@ function t(key, values = {}) {
   const dictionary = dictionaries[state.selectedLanguage] || dictionaries.en;
   const template = dictionary[key] || dictionaries.en[key] || key;
   return Object.entries(values).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, value), template);
+}
+
+let clockInterval = null;
+function startVenueClock(timezone) {
+  if (clockInterval) clearInterval(clockInterval);
+  const el = document.querySelector("#timezoneClock");
+  if (!el) return;
+  const update = () => {
+    try {
+      const timeStr = new Date().toLocaleTimeString("en-US", {
+        timeZone: timezone,
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+      });
+      el.textContent = timeStr;
+    } catch (e) {
+      el.textContent = new Date().toLocaleTimeString();
+    }
+  };
+  update();
+  clockInterval = setInterval(update, 1000);
+}
+
+function updateMapCard(venue) {
+  const titleEl = document.querySelector("#mapCardTitle");
+  const nameEl = document.querySelector("#mapCardVenueName");
+  const coordsEl = document.querySelector("#mapCardCoords");
+  const linkEl = document.querySelector("#mapDirectionsLink");
+
+  if (titleEl) titleEl.textContent = venue.city;
+  if (nameEl) nameEl.textContent = `${venue.venueName} (${venue.fifaName})`;
+  if (coordsEl) coordsEl.textContent = `Coordinates: ${venue.coordinates.lat}, ${venue.coordinates.lng}`;
+  if (linkEl) {
+    linkEl.href = `https://www.google.com/maps/dir/?api=1&destination=${venue.coordinates.lat},${venue.coordinates.lng}`;
+  }
+}
+
+function weatherDesc(code) {
+  if (code >= 95) return "Thunderstorm";
+  if (code >= 80 && code <= 82) return "Rain Showers";
+  if (code >= 71 && code <= 77) return "Snow";
+  if (code >= 61 && code <= 67) return "Rainy";
+  if (code >= 51 && code <= 57) return "Drizzle";
+  if (code >= 45 && code <= 48) return "Foggy";
+  if (code >= 1 && code <= 3) return "Partly Cloudy";
+  return "Clear Sky";
 }
 
 function initTabs() {
