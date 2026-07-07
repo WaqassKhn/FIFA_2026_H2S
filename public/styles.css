@@ -101,11 +101,12 @@ textarea:focus-visible {
 }
 
 /* Header & Sticky Top Bar */
+/* Header & Sticky Top Bar */
 .app-header {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(11, 16, 30, 0.88);
+  background: rgba(34, 37, 42, 0.94); /* Slate Charcoal background */
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -119,12 +120,16 @@ textarea:focus-visible {
 
 .app-header.minimized {
   padding: 10px 26px;
-  gap: 10px;
+  gap: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55);
 }
 
 .app-header.minimized .hero-banner {
-  display: none !important;
+  max-height: 0 !important;
+  opacity: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  pointer-events: none;
 }
 
 .app-header.minimized .header-top-bar {
@@ -175,6 +180,9 @@ textarea:focus-visible {
   padding: 20px 16px 16px;
   position: relative;
   overflow: hidden;
+  max-height: 300px;
+  opacity: 1;
+  transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, padding 0.35s ease, margin 0.35s ease;
 }
 
 .hero-badge-row {

@@ -690,13 +690,13 @@ function bindEvents() {
     });
   });
 
-  // Minimize app-header when scrolling down for better dashboard visibility
+  // Minimize app-header using hysteresis to prevent sticky layout scroll jitter
   window.addEventListener("scroll", () => {
     const header = document.querySelector(".app-header");
     if (header) {
-      if (window.scrollY > 40) {
+      if (window.scrollY > 150) {
         header.classList.add("minimized");
-      } else {
+      } else if (window.scrollY < 40) {
         header.classList.remove("minimized");
       }
     }
