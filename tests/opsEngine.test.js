@@ -125,3 +125,53 @@ test("assistant calls Groq API when groqApiKey is provided", async () => {
   }
 });
 
+test("assistant calls Gemini API when geminiApiKey is provided", async () => {
+  const originalFetch = global.fetch;
+  let fetchCalled = false;
+  let fetchUrl = "";
+  let fetchBody = null;
+
+  global.fetch = async (url, options) => {
+    fetchCalled = true;
+    fetchUrl = url;
+    fetchBody = JSON.parse(options.body);
+    return {
+      ok: true,
+      json: async () => ({
+        candidates: [
+          {
+            content: {
+              parts: [
+                {
+                  text: "Mocked Gemini Answer"
+                }
+              ]
+            }
+          }
+        ]
+      })
+    };
+  };
+
+  try {
+    const result = await answerQuestion({
+      venueId: "mexico-city",
+      question: "How should staff handle crowd density?",
+      provider: "gemini"
+    }, {
+      geminiApiKey: "gemini_test_key",
+      geminiModel: "gemini-2.5-flash"
+    });
+
+    assert.equal(fetchCalled, true);
+    assert.ok(fetchUrl.includes("gemini-2.5-flash"));
+    assert.ok(fetchUrl.includes("key=gemini_test_key"));
+    assert.equal(result.mode, "gemini");
+    assert.equal(result.model, "gemini-2.5-flash");
+    assert.equal(result.answer, "Mocked Gemini Answer");
+    assert.equal(fetchBody.systemInstruction.parts[0].text.includes("Matchday Stadium Copilot"), true);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
