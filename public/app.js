@@ -495,7 +495,7 @@ function initFifaBackground() {
   bg.className = "fifa-bg-grid";
   bg.setAttribute("aria-hidden", "true");
   
-  const symbols = ["⚽", "🏆", "🏟️", "⏱️", "📣", "🚩", "⭐", "26"];
+  const symbols = ["FIFA", "2026", "WORLD CUP", "USA", "MEXICO", "CANADA", "FOOTBALL", "SOCCER"];
   const count = 120;
   for (let i = 0; i < count; i++) {
     const span = document.createElement("span");
