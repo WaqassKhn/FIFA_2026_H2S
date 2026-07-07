@@ -690,17 +690,7 @@ function bindEvents() {
     });
   });
 
-  // Minimize app-header using hysteresis to prevent sticky layout scroll jitter
-  window.addEventListener("scroll", () => {
-    const header = document.querySelector(".app-header");
-    if (header) {
-      if (window.scrollY > 150) {
-        header.classList.add("minimized");
-      } else if (window.scrollY < 40) {
-        header.classList.remove("minimized");
-      }
-    }
-  });
+
 
   els.askButton.addEventListener("click", askAssistant);
   els.clearButton.addEventListener("click", () => {
