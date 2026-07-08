@@ -37,7 +37,7 @@ To ensure consistent operational forecasts and routing, the following assumption
 ## Live Application Link
 
 Add your deployed public link here:
-[Insert Deployed Link Here]
+https://fifa-2026-h2s-1.onrender.com
 
 ## Local Setup Instructions
 
